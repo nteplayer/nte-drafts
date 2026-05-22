@@ -1,13 +1,14 @@
 let currentUser = null;
 let currentSystems = {};
 
-// Опции для 6 конст
 const constOptions = [1, 2, 3, 4, 5, 6];
 function populateSelects() {
     ['slot1', 'slot2', 'slot3'].forEach(id => {
         const el = document.getElementById(id);
-        el.innerHTML = '';
-        constOptions.forEach(c => el.innerHTML += `<option value="${c}">Constellation ${c}</option>`);
+        if(el) {
+            el.innerHTML = '';
+            constOptions.forEach(c => el.innerHTML += `<option value="${c}">Constellation ${c}</option>`);
+        }
     });
 }
 
@@ -16,27 +17,31 @@ auth.onAuthStateChanged(user => {
         currentUser = user;
         populateSelects();
         
-        // Проверка прав создателя костов (Пункт 4)
         db.ref('users/' + user.uid).once('value').then(snapshot => {
             const data = snapshot.val();
-            document.getElementById('user-display').innerText = data.username;
-            if (data.isCostMaker) {
-                document.getElementById('cost-maker-panel').style.display = 'block';
+            if(data) {
+                document.getElementById('user-display').innerText = data.username;
+                if (data.isCostMaker) {
+                    document.getElementById('cost-maker-panel').style.display = 'block';
+                }
             }
         });
 
-        // Загрузка доступных систем костов
         db.ref('costSystems').on('value', snapshot => {
             currentSystems = snapshot.val() || {};
             const select = document.getElementById('select-cost-system');
-            select.innerHTML = '';
-            for (let key in currentSystems) {
-                select.innerHTML += `<option value="${key}">${currentSystems[key].name}</option>`;
+            if(select) {
+                select.innerHTML = '';
+                for (let key in currentSystems) {
+                    select.innerHTML += `<option value="${key}">${currentSystems[key].name}</option>`;
+                }
+                calculateRosterCost();
             }
-            calculateRosterCost();
         });
     } else {
-        window.location.href = 'index.html';
+        if(!window.location.href.includes('index.html') && window.location.pathname !== '/') {
+            window.location.href = 'index.html';
+        }
     }
 });
 
@@ -58,11 +63,13 @@ function saveCostSystem() {
         },
         synergy13: document.getElementById('synergy-1-3').checked
     });
-    alert('System saved!');
+    alert('Cost System Saved!');
 }
 
 function calculateRosterCost() {
-    const sysId = document.getElementById('select-cost-system').value;
+    const select = document.getElementById('select-cost-system');
+    if(!select) return;
+    const sysId = select.value;
     if (!sysId || !currentSystems[sysId]) return;
 
     const system = currentSystems[sysId];
@@ -72,11 +79,9 @@ function calculateRosterCost() {
 
     let total = (system.costs[s1] || 0) + (system.costs[s2] || 0) + (system.costs[s3] || 0);
 
-    // Логика связи конст / Синергия (Пункт 6)
-    // Если выбрана 1 и 3 конста и создатель костов включил синергию:
     const selectedSlots = [s1, s2, s3];
     if (system.synergy13 && selectedSlots.includes("1") && selectedSlots.includes("3")) {
-        total -= 2; // Например, снижаем кост за синергию
+        total -= 2; 
     }
 
     document.getElementById('total-cost-display').innerText = total;
@@ -99,5 +104,5 @@ function saveRoster() {
         slots: [s1, s2, s3],
         totalCost: cost
     });
-    alert('Roster saved successfully!');
+    alert('Roster saved!');
 }
