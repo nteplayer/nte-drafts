@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NTE Tournaments</title>
+    <title>NTE Tournaments - Login</title>
     <link rel="stylesheet" href="css/style.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
     <div class="auth-container">
         <h2>Neverness to Everness Tournaments</h2>
         <div id="auth-forms">
-            <input type="email" id="auth-email" placeholder="Email" required>
+            <input type="email" id="auth-email" placeholder="Email Address" required>
             <input type="password" id="auth-password" placeholder="Password" required>
-            <input type="text" id="auth-username" placeholder="In-game Nickname (for admin rights)" required>
+            <input type="text" id="auth-username" placeholder="In-game Nickname" required>
             <div class="btn-group">
                 <button onclick="handleSignUp()">Sign Up</button>
                 <button onclick="handleLogin()">Login</button>
