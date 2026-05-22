@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - Rosters & Cost Systems</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTE Tournaments - Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -15,42 +16,42 @@
             <a href="draft.html">Drafts Tab</a>
         </nav>
         
-        <h2>Welcome, <span id="user-display">Player</span></h2>
+        <h2>Welcome, <span id="user-display" style="color: var(--neon-cyan);">Player</span></h2>
+        <hr>
         
-        <!-- Секция для создателей костов -->
-        <div id="cost-maker-panel" style="display: none; border: 1px dashed var(--neon-cyan); padding: 15px; margin-bottom: 20px;">
+        <div id="cost-maker-panel" style="display: none; border: 2px dashed var(--neon-cyan); padding: 20px; margin-bottom: 25px;">
             <h3>🛠️ Cost Maker Panel</h3>
             <input type="text" id="system-name" placeholder="Cost System Name (e.g., Season 1)">
-            <p>Set base costs for 6 Constellations (1 to 6):</p>
-            <input type="number" id="c1-cost" placeholder="Const 1 Cost" value="10">
-            <input type="number" id="c2-cost" placeholder="Const 2 Cost" value="10">
-            <input type="number" id="c3-cost" placeholder="Const 3 Cost" value="10">
-            <input type="number" id="c4-cost" placeholder="Const 4 Cost" value="10">
-            <input type="number" id="c5-cost" placeholder="Const 5 Cost" value="10">
-            <input type="number" id="c6-cost" placeholder="Const 6 Cost" value="10">
+            <p>Set Base Costs for 6 Constellations:</p>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                <input type="number" id="c1-cost" placeholder="C1 Cost" value="10">
+                <input type="number" id="c2-cost" placeholder="C2 Cost" value="10">
+                <input type="number" id="c3-cost" placeholder="C3 Cost" value="10">
+                <input type="number" id="c4-cost" placeholder="C4 Cost" value="10">
+                <input type="number" id="c5-cost" placeholder="C5 Cost" value="10">
+                <input type="number" id="c6-cost" placeholder="C6 Cost" value="10">
+            </div>
             
-            <h4>Synergy Settings (Пункт 6)</h4>
-            <label><input type="checkbox" id="synergy-1-3"> Const 1 + Const 3 Synergy (-2 Cost Modifier)</label>
+            <h4>Synergy Modifier</h4>
+            <label><input type="checkbox" id="synergy-1-3"> Const 1 + Const 3 Synergy (-2 Cost)</label>
             <button onclick="saveCostSystem()">Save Cost & Draft System</button>
         </div>
 
-        <!-- Создание ростеров (Пункт 3) -->
-        <h3>Create Roster</h3>
-        <select id="select-cost-system" onchange="calculateRosterCost()">
-            <!-- Подгружается из БД -->
-        </select>
+        <h3>Create New Roster</h3>
+        <label>Select Cost System:</label>
+        <select id="select-cost-system" onchange="calculateRosterCost()"></select>
         
-        <input type="text" id="roster-name" placeholder="Roster Name (e.g., My Aggro Setup)">
+        <input type="text" id="roster-name" placeholder="Roster Name">
         
-        <p>Select 3 Constellations for this roster:</p>
+        <p>Select 3 Slots:</p>
         <select id="slot1" onchange="calculateRosterCost()"></select>
         <select id="slot2" onchange="calculateRosterCost()"></select>
         <select id="slot3" onchange="calculateRosterCost()"></select>
         
-        <div style="font-size: 1.2rem; margin: 15px 0;">
+        <div style="font-size: 1.3rem; margin: 20px 0; font-weight: bold;">
             Total Cost: <span id="total-cost-display" style="color: var(--neon-cyan);">0</span>
         </div>
-        <button onclick="saveRoster()">Save Roster</button>
+        <button onclick="saveRoster()">Save Roster to Database</button>
     </div>
 
     <script src="js/app.js"></script>
