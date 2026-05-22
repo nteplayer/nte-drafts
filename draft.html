@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Drafts System (BO2)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTE Tournaments - Draft Room</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
     <div class="draft-container">
@@ -15,15 +16,14 @@
             <a href="draft.html"><b>Drafts Tab</b></a>
         </nav>
 
-        <h2>Draft Matchmaking Room</h2>
+        <h2>Draft Matchmaking (BO2)</h2>
         
-        <label>Select Cost System:</label>
+        <label>Select Global Cost System:</label>
         <select id="draft-system-select"></select>
 
-        <button onclick="startBO2()" style="background: #ff4545;">Start Best Of 2 (BO2) Match</button>
+        <button onclick="startBO2()" style="background: #ff4545; font-size: 1.1rem; margin: 20px 0;">Start Best Of 2 (BO2) Match</button>
 
         <div class="draft-grid">
-            <!-- Игрок 1 -->
             <div class="player-box">
                 <h3>Player 1</h3>
                 <input type="text" id="p1-nick" placeholder="Enter Player 1 Nickname">
@@ -32,7 +32,6 @@
                 <div id="p1-fp" class="fp-status"></div>
             </div>
 
-            <!-- Игрок 2 -->
             <div class="player-box">
                 <h3>Player 2</h3>
                 <input type="text" id="p2-nick" placeholder="Enter Player 2 Nickname">
@@ -42,7 +41,7 @@
             </div>
         </div>
         
-        <div id="match-log" style="margin-top: 20px; font-weight: bold; text-align: center; color: var(--neon-cyan);"></div>
+        <div id="match-log" style="margin-top: 30px; font-size: 1.2rem; text-align: center; color: var(--neon-cyan);"></div>
     </div>
 
     <script src="js/app.js"></script>
