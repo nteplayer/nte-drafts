@@ -3,65 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NTE Tournament Hub</title>
-    <link rel="stylesheet" href="style.css">
+    <title>NTE Tournaments</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 </head>
-<body class="nte-theme">
-    <nav class="navbar">
-        <div class="logo">NTE HUB</div>
-        <div class="nav-links">
-            <span id="user-display">Guest</span>
-            <button id="auth-btn" onclick="toggleAuthModal()">Login / Register</button>
-        </div>
-    </nav>
-
-    <main class="container">
-        <header class="page-header">
-            <h1>Tournament Roster Builder</h1>
-            <div class="cost-summary">Total Cost: <span id="total-cost">0</span></div>
-        </header>
-
-        <section id="roster-section" class="card">
-            <h2>Your Rosters</h2>
-            <div id="roster-list" class="grid-4">
-                <!-- Roster slots will be generated here -->
-            </div>
-            <button class="btn-primary" onclick="createNewRoster()">+ New Roster</button>
-        </section>
-
-        <!-- Admin Only Section -->
-        <section id="admin-panel" class="card hidden">
-            <h2>Cost Maker Panel</h2>
-            <div class="admin-tools">
-                <input type="text" id="target-nickname" placeholder="Enter Nickname">
-                <button onclick="grantPermissions()">Grant Rights</button>
-            </div>
-        </section>
-    </main>
-
-    <!-- Auth Modal -->
-    <div id="auth-modal" class="modal hidden">
-        <div class="modal-content">
-            <h2 id="modal-title">Login</h2>
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Password">
-            <input type="text" id="nickname" placeholder="Nickname (for registration)" class="hidden">
-            <div class="modal-actions">
-                <button id="main-auth-action">Login</button>
-                <button onclick="toggleAuthMode()">Switch to Register</button>
-                <button onclick="toggleAuthModal()">Close</button>
+<body>
+    <div class="auth-container">
+        <h2>Neverness to Everness Tournaments</h2>
+        <div id="auth-forms">
+            <input type="email" id="auth-email" placeholder="Email" required>
+            <input type="password" id="auth-password" placeholder="Password" required>
+            <input type="text" id="auth-username" placeholder="In-game Nickname (for admin rights)" required>
+            <div class="btn-group">
+                <button onclick="handleSignUp()">Sign Up</button>
+                <button onclick="handleLogin()">Login</button>
             </div>
         </div>
     </div>
-
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    
-    <script src="firebase-config.js"></script>
-    <script src="auth.js"></script>
-    <script src="app.js"></script>
-    <script src="admin.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
