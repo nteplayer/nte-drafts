@@ -1,6 +1,6 @@
-// Твоя конфигурация Firebase
+// Сюда вставляешь ТОЛЬКО блок конфигурации из Project Settings
 const firebaseConfig = {
-    apiKey: "AIzaSyAa_zvBCLyFZKccIMtUfRs_2Tx__JXcTP4",
+    apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx__JXcTP4",
     authDomain: "nte-tournaments-7b0e3.firebaseapp.com",
     databaseURL: "https://nte-tournaments-7b0e3-default-rtdb.firebaseio.com",
     projectId: "nte-tournaments-7b0e3",
@@ -9,12 +9,12 @@ const firebaseConfig = {
     appId: "1:1022034023092:web:d269068348b24abed93de1"
 };
 
-// Инициализация сервисов
+// Инициализация строго в старом стиле v8 для работы в браузере:
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// Список никнеймов, у кого есть админка на создание костов
+// Список никнеймов с админ-правами (Пункт 4)
 const ADMIN_NICKNAMES = ["AdminNick", "Dmitriy", "HostNTE"]; 
 
 function handleSignUp() {
@@ -34,11 +34,11 @@ function handleSignUp() {
                 email: email,
                 isCostMaker: isCostMaker
             }).then(() => {
-                alert('Account created!');
+                alert('Account created successfully!');
                 window.location.href = 'dashboard.html';
             });
         })
-        .catch(error => alert(error.message));
+        .catch(error => alert(error.message)); // Если что-то не так, покажет окно с ошибкой
 }
 
 function handleLogin() {
