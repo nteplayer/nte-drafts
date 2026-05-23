@@ -126,6 +126,7 @@
             font-size: 0.85rem;
             cursor: pointer;
             color: #ccc;
+            user-select: none;
         }
         .tab-item.active {
             background: var(--accent-yellow);
@@ -245,83 +246,4 @@
             <div class="row-label">// Accounts</div>
             <div class="tab-item active" onclick="switchAccountTab('acc1', this)">мой акк</div>
             <div class="tab-item" onclick="switchAccountTab('acc2', this)">Account 2</div>
-            <div class="tab-item" onclick="switchAccountTab('acc3', this)">Account 3</div>
-            <button class="add-tab-btn" onclick="createNewAccountInTabs()">+</button>
-        </div>
-        <div class="tab-row" id="preset-tabs-container">
-            <div class="row-label">// Presets</div>
-            <div class="tab-item active" onclick="switchPresetTab('roster', this)">Roster</div>
-            <div class="tab-item" onclick="switchPresetTab('preset1', this)">Preset 1</div>
-            <div class="tab-item" onclick="switchPresetTab('preset2', this)">Preset 2</div>
-            <button class="add-tab-btn" onclick="createNewPresetInTabs()">+</button>
-        </div>
-    </div>
-
-    <div class="workspace-box">
-        <div class="workspace-header">
-            <div class="title-with-edit">
-                <span id="workspace-dynamic-title">мой акк</span>
-                <button class="edit-icon-btn">&#9999;</button>
-            </div>
-            <a href="admin.html" id="admin-panel-btn" class="admin-panel-link">Admin Panel</a>
-        </div>
-
-        <div class="info-section">
-            <div class="section-top-bar">
-                <span id="agents-block-label" class="section-title">Account agents</span>
-                <button class="manage-btn">Manage agents</button>
-            </div>
-            <div class="empty-placeholder-text">No active agents configured for this view.</div>
-        </div>
-
-        <div class="info-section">
-            <div class="section-top-bar">
-                <span id="engines-block-label" class="section-title">Account engines</span>
-                <button class="manage-btn">Manage engines</button>
-            </div>
-            <div class="empty-placeholder-text">No engines connected.</div>
-        </div>
-    </div>
-</div>
-
-<script>
-const firebaseConfig = { apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx_JXcTP4", authDomain: "nte-tournaments.firebaseapp.com", databaseURL: "https://nte-tournaments-default-rtdb.firebaseio.com", projectId: "nte-tournaments", storageBucket: "nte-tournaments.appspot.com", messagingSenderId: "1022034023092", appId: "1:1022034023092:web:d269068348b24abed93de1" };
-if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); };
-const auth = firebase.auth(); const db = firebase.database(); let currentLoggedUid = null;
-
-// РЕДИРЕКТ ОТКЛЮЧЕН ДЛЯ ДИАГНОСТИКИ ОШИБОК
-auth.onAuthStateChanged(function(user) { 
-    if (user) { 
-        currentLoggedUid = user.uid; 
-        db.ref("users/" + user.uid).once("value").then(function(snapshot) { 
-            if (snapshot.exists()) { 
-                loadUserProfileData(user.uid, true); 
-            } else { 
-                if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = "User Data Missing"; }; 
-                if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = "id: " + user.uid; }; 
-            }; 
-        }).catch(function(err) { 
-            loadUserProfileData(user.uid, true); 
-        }); 
-    } else { 
-        // Вместо вылета просто пишем статус на экран
-        if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = "Not Logged In"; };
-        if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = "Please log in via index.html"; };
-    }; 
-});
-
-function loadUserProfileData(uid, isItMe) { if (isItMe) { if(document.getElementById("back-self-btn")) { document.getElementById("back-self-btn").style.display = "none"; }; } else { if(document.getElementById("back-self-btn")) { document.getElementById("back-self-btn").style.display = "inline-block"; }; }; db.ref("users/" + uid).once("value").then(function(snapshot) { const data = snapshot.val(); if (data) { if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = data.username || "unknown"; }; if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = data.username || "unknown"; }; if (isItMe && data.username) { checkAdminStatus(data.username); }; } else { if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = "New User"; }; if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = "id: " + uid; }; }; }).catch(function(err) { console.error(err); }); };
-
-function checkAdminStatus(username) { db.ref("admins/" + username).once("value").then(function(snapshot) { const isAdminButton = document.getElementById("admin-panel-btn"); if (snapshot.exists() && snapshot.val() === true) { if (isAdminButton) { isAdminButton.style.display = "block"; }; } else { if (isAdminButton) { isAdminButton.style.display = "none"; }; }; }).catch(function(err) { console.error(err); }); };
-
-function toggleSearchDropdown() { const drop = document.getElementById("search-dropdown"); if(drop) { drop.style.display = drop.style.display === "block" ? "none" : "block"; }; };
-
-function searchUserInDB() { const query = document.getElementById("search-input").value.trim(); const resContainer = document.getElementById("search-results-container"); if (!query || !resContainer) return; db.ref("users").orderByChild("username").equalTo(query).once("value").then(function(snapshot) { resContainer.innerHTML = ""; if (!snapshot.exists()) { resContainer.innerText = "User not found"; return; }; snapshot.forEach(function(child) { const userKey = child.key; const userData = child.val(); resContainer.innerHTML += "<div class='found-user-row' onclick='viewTargetUser(\"" + userKey + "\")'><span>" + userData.username + "</span><span>Open &rarr;</span></div>"; }); }); };
-
-function viewTargetUser(uid) { loadUserProfileData(uid, false); if(document.getElementById("search-dropdown")) { document.getElementById("search-dropdown").style.display = "none"; }; if(document.getElementById("search-input")) { document.getElementById("search-input").value = ""; }; };
-
-function returnToOwnProfile() { if (currentLoggedUid) { loadUserProfileData(currentLoggedUid, true); }; };
-
-function switchAccountTab(type, element) { const tabs = document.querySelectorAll("#account-tabs-container .tab-item"); tabs.forEach(function(t) { t.classList.remove("active"); }); element.classList.add("active"); };
-
-function switchPresetTab(type, element) { const tabs = document.querySelectorAll("#preset-tabs-container .tab-item"); tabs.forEach(function(t) { t.classList.remove("active"); }); element.classList.add("active"); const mainTitle = document.getElementById("workspace-dynamic-title"); const agentsLabel = document.getElementById("agents-block-label"); const enginesLabel = document.getElementById("engines-block-label"); if(!mainTitle) return; if (type === "roster") { mainTitle.textContent = "Account"; if(agentsLabel) { agentsLabel.textContent = "Account agents"; }; if(enginesLabel) { enginesLabel.textContent = "Account engines"; }; } else if (type === "preset1") { mainTitle.textContent = "Preset 1"; if(agentsLabel) { agentsLabel.textContent = "Preset agents"; }; if(enginesLabel) { enginesLabel.textContent = "Preset engines"; }; } else if (type === "preset2") { mainTitle.textContent = "Preset 2"; if(agentsLabel) { agentsLabel.textContent = "Preset agents"; }; if(enginesLabel) { enginesLabel.textContent =
+            <div class="tab-item" onclick
