@@ -2,51 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NTE Tournaments - Draft Room</title>
+    <title>ShiyuCup - Drafts</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-    <div class="draft-container">
-        <nav class="nav-links">
-    <a href="dashboard.html">Dashboard</a>
-    <a href="draft.html">Drafts</a>
-    <a href="profile.html">Profile</a>
-    <a href="tournaments.html">Tournaments</a>
-    <a href="news.html">News</a>
-</nav>
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="logo-area">Shiyu<span>Cup</span></div>
+            <a href="dashboard.html">Home</a>
+            <a href="profile.html">Profile</a>
+            <a href="draft.html" class="active">Drafts</a>
+            <a href="tournaments.html">Tournaments</a>
+            <button class="sidebar-logout" onclick="logout()">Logout</button>
+        </aside>
 
-        <h2>Draft Matchmaking (BO2)</h2>
-        
-        <label>Select Global Cost System:</label>
-        <select id="draft-system-select"></select>
-
-        <button onclick="startBO2()" style="background: #ff4545; font-size: 1.1rem; margin: 20px 0;">Start Best Of 2 (BO2) Match</button>
-
-        <div class="draft-grid">
-            <div class="player-box">
-                <h3>Player 1</h3>
-                <input type="text" id="p1-nick" placeholder="Enter Player 1 Nickname">
-                <button onclick="searchPlayerRosters(1)">Load Rosters</button>
-                <select id="p1-rosters-select"></select>
-                <div id="p1-fp" class="fp-status"></div>
+        <main class="main-content">
+            <div class="content-header">
+                <h2>Matchmaking Drafts Room</h2>
             </div>
-
-            <div class="player-box">
-                <h3>Player 2</h3>
-                <input type="text" id="p2-nick" placeholder="Enter Player 2 Nickname">
-                <button onclick="searchPlayerRosters(2)">Load Rosters</button>
-                <select id="p2-rosters-select"></select>
-                <div id="p2-fp" class="fp-status"></div>
+            <div class="content-card">
+                <h3>BO2 Draft Systems</h3>
+                <p style="color: var(--text-muted);">First Pick (FP) shifts automatically between Round 1 and Round 2.</p>
+                <div style="border: 2px dashed rgba(255,255,255,0.1); padding: 40px; text-align: center; border-radius: 8px; color: var(--text-muted);">
+                    Waiting for opponent connection...
+                </div>
             </div>
-        </div>
-        
-        <div id="match-log" style="margin-top: 30px; font-size: 1.2rem; text-align: center; color: var(--neon-cyan);"></div>
+        </main>
     </div>
-
     <script src="js/app.js"></script>
     <script src="js/drafts.js"></script>
 </body>
