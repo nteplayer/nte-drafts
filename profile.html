@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <title>SHIYU OUP PANEL - PROFILE</title>
     <style>
+        /* Твои стили */
         body { background-color: #0a0a0a; color: #fff; font-family: sans-serif; padding: 40px; }
         .guest-badge { display: none; background: #e5fe0220; border: 1px solid #e5fe02; color: #e5fe02; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         .data-card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 12px; }
+        .acc-tab { display: inline-block; padding: 8px 16px; background: #222; margin-right: 10px; border-radius: 20px; cursor: pointer; }
+        .acc-tab.active { background: #e5fe02; color: #000; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -15,10 +18,11 @@
 <body>
 
 <div id="guest-badge-status" class="guest-badge">Guest Mode</div>
-
 <h1 id="profile-name">Loading...</h1>
+
 <div class="data-card">
-    <p>Активные аккаунты: <span id="account-status">Загрузка...</span></p>
+    <div id="account-tabs"></div>
+    <div id="account-content" style="margin-top: 20px;"></div>
 </div>
 
 <script>
@@ -37,15 +41,27 @@ const db = firebase.database();
 
 auth.onAuthStateChanged(function(user) {
     if (user) {
-        document.getElementById("guest-badge-status").style.display = "none";
         db.ref("users/" + user.uid).once("value").then(function(snapshot) {
             const data = snapshot.val();
-            document.getElementById("profile-name").innerText = data ? "Привет, " + data.username : "Привет, Игрок";
-            document.getElementById("account-status").innerText = data && data.accounts ? "Аккаунты найдены" : "Нет активных аккаунтов";
+            if (data) {
+                document.getElementById("profile-name").innerText = data.username;
+                const tabs = document.getElementById("account-tabs");
+                const content = document.getElementById("account-content");
+                
+                // Рендер аккаунтов
+                Object.keys(data.accounts || {}).forEach(key => {
+                    const tab = document.createElement("div");
+                    tab.className = "acc-tab";
+                    tab.innerText = data.accounts[key].customName || key;
+                    tab.onclick = () => {
+                        content.innerHTML = `<h3>${key}</h3><p>Agents: ${data.accounts[key].agentsHtml}</p>`;
+                    };
+                    tabs.appendChild(tab);
+                });
+            }
         });
     } else {
         document.getElementById("guest-badge-status").style.display = "block";
-        document.getElementById("profile-name").innerText = "Гостевой режим";
     }
 });
 </script>
