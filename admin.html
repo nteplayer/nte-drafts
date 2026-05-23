@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIYU CUP - Admin Panel</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <style>
+        :root {
+            --bg-main: #0c0d0e;
+            --bg-card: #141619;
+            --bg-sidebar: #111214;
+            --accent-lime: #d4f900;
+            --accent-red: #ff3e3e;
+            --text-main: #ffffff;
+            --text-muted: #70757d;
+            --border-color: #202327;
+            --bg-input: #1a1c20;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Сайдбар */
+        .sidebar {
+            width: 240px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .logo-area {
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            padding-left: 10px;
+        }
+        .logo-area span {
+            color: var(--accent-lime);
+            font-size: 0.7rem;
+            vertical-align: super;
+            margin-left: 4px;
+        }
+
+        .sidebar-nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: block;
+            background: #18191c;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        .sidebar-nav a:hover {
+            background: var(--border-color);
+        }
+
+        /* Главный контент */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--accent-red);
+            border-left: 4px solid var(--accent-red);
+            padding-left: 10px;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .admin-grid { grid-template-columns: 1fr; }
+        }
+
+        .admin-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .admin-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        /* Формы ввода */
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .form-group input, .form-group select {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        .form-group input[type="file"] {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            background: var(--accent-lime);
+            color: #000;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.95rem;
+            margin-top: 10px;
+            transition: opacity 0.2s;
+        }
+        .submit-btn:hover { opacity: 0.9; }
+
+        /* Список добавленных элементов */
+        .character-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .character-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+
+        .char-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .char-img-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #242830;
+            border: 1px solid var(--border-color);
+        }
+
+        .char-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .char-rarity {
+            font-size: 0.75rem;
+            color: #f59e0b;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .delete-btn:hover { color: var(--accent-red); }
+
+        /* Лоадер авторизации */
+        #gate-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: var(--bg-main);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="gate-overlay">Checking administrator privileges...</div>
+
+    <aside class="sidebar">
+        <div class="logo-area">SHIYU CUP<span>ADMIN</span></div>
+        <div class="sidebar-nav">
+            <a href="profile.html">← Back to Profile</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-title">Database & Roster Management</div>
+
+        <div class="admin-grid">
+            
+            <div class="admin-card">
+                <h3>Add New Agent / Engine</h3>
+                <form id="add-character-form" onsubmit="uploadCharacter(event)">
+                    
+                    <div class="form-group">
+                        <label>Item Type</label>
+                        <select id="char-type">
+                            <option value="agent">Agent (Персонаж)</option>
+                            <option value="engine">Engine (Амплификатор)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Name (English / Russian)</label>
+                        <input type="text" id="char-name" placeholder="e.g. Ellen Joe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rarity / Rank</label>
+                        <select id="char-rarity">
+                            <option value="S">S-Rank</option>
+                            <option value="A">A-Rank</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Icon / Image</label>
+                        <input type="file" id="char-file" accept="image/*" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="sub-btn-text">Upload to System</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h3>Active Registry</h3>
+                <div class="character-list" id="registry-render-node">
+                    </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Конфигурация Firebase (Убедись, что твои ключи верны)
+        const firebaseConfig = {
+            apiKey: "ТВОЙ_API_KEY",
+            authDomain: "nte-tournaments.firebaseapp.com",
+            databaseURL: "https://nte-tournaments-default-rtdb.firebaseio.com",
+            projectId: "nte-tournaments",
+            storageBucket: "nte-tournaments.appspot.com",
+            messagingSenderId: "SENDER_ID",
+            appId: "APP_ID"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.database();
+        const storage = firebase.storage();
+
+        // 1. ПРОВЕРКА ПРАВ ДОСТУПА ПО НИКНЕЙМУ
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.ref('users/' + user.uid).once('value').then(snapshot => {
+                    const data = snapshot.val();
+                    if (data && data.username) {
+                        // Ищем никнейм в ветке admins
+                        db.ref('admins/' + data.username).once('value').then(adminSnap => {
+                            if (adminSnap.exists() && adminSnap.val() === true) {
+                                // Доступ разрешен, убираем блокирующий экран
+                                document.getElementById('gate-overlay').style.display = 'none';
+                                listenToRegistry(); // Запускаем синхронизацию списка
+                            } else {
+                                alert("Access Denied: You are not listed in the administrators database.");
+                                window.location.href = 'profile.html';
+                            }
+                        });
+                    } else {
+                        window.location.href = 'profile.html';
+                    }
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // 2. ОТПРАВКА ДАННЫХ И КАРТИНКИ
+        function uploadCharacter(event) {
+            event.preventDefault();
+
+            const type = document.getElementById('char-type').value;
+            const name = document.getElementById('char-name').value.trim();
+            const rarity = document.getElementById('char-rarity').value;
+            const fileInput = document.getElementById('char-file');
+            const btnText = document.getElementById('sub-btn-text');
+
+            if (fileInput.files.length === 0) return;
+            const file = fileInput.files[0];
+
+            btnText.innerText = "Uploading File...";
+            btnText.disabled = true;
+
+            // Генерация уникального имени для файла в облаке Storage
+            const fileExtension = file.name.split('.').pop();
+            const storagePath = `items/${type}s/${Date.now()}_${Math.random().toString(36).substr(2, 5)}.${fileExtension}`;
+            const storageRef = storage.ref(storagePath);
+
+            // Шаг А: Загружаем файл изображения в Firebase Storage
+            storageRef.put(file).then(uploadTaskSnapshot => {
+                // Шаг Б: Получаем прямую публичную ссылку на загруженную картинку
+                return uploadTaskSnapshot.ref.getDownloadURL();
+            }).then(downloadURL => {
+                btnText.innerText = "Writing Data...";
+                
+                // Шаг В: Записываем информацию в Realtime Database в узел registry/agents или registry/engines
+                const newRegistryItemRef = db.ref(`registry/${type}s`).push();
+                return newRegistryItemRef.set({
+                    name: name,
+                    rarity: rarity,
+                    imageUrl: downloadURL,
+                    storagePath: storagePath // Сохраняем путь, чтобы удалить картинку, если удалим персонажа
+                });
+            }).then(() => {
+                alert("Successfully added to global registry!");
+                document.getElementById('add-character-form').reset();
+            }).catch(error => {
+                alert("Upload failed: " + error.message);
+            }).finally(() => {
+                btnText.innerText = "Upload to System";
+                btnText.disabled = false;
+            });
+        }
+
+        // 3. ЖИВОЙ ВЫВОД И СИНХРОНИЗАЦИЯ ТЕКУЩИХ ПЕРСОНАЖЕЙ В АДМИНКЕ
+        function listenToRegistry() {
+            db.ref('registry').on('value', snapshot => {
+                const container = document.getElementById('registry-render-node');
+                container.innerHTML = '';
+
+                if (!snapshot.exists()) {
+                    container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem;">No items registered yet.</p>';
+                    return;
+                }
+
+                // Обходим агентов и движки
+                snapshot.forEach(typeGroup => {
+                    const itemType = typeGroup.key; // agents или engines
+                    typeGroup.forEach(item => {
+                        const id = item.key;
+                        const data = item.val();
+
+                        container.innerHTML += `
+                            <div class="character-item">
+                                <div class="char-info">
+                                    <img class="char-img-preview" src="${data.imageUrl}" alt="icon">
+                                    <div>
+                                        <div class="char-name">${data.name}</div>
+                                        <div class="char-rarity">${data.rarity}-Rank • ${itemType.slice(0, -1)}</div>
+                                    </div>
+                                </div>
+                                <button class="delete-btn" onclick="deleteItem('${itemType}', '${id}', '${data.storagePath}')">🗑️</button>
+                            </div>
+                        `;
+                    });
+                });
+            });
+        }
+
+        // 4. УДАЛЕНИЕ ЭЛЕМЕНТА И ЕГО КАРТИНКИ ИЗ СИСТЕМЫ
+        function deleteItem(type, id, storagePath) {
+            if (!confirm("Are you sure you want to permanently delete this item?")) return;
+
+            // Удаляем данные из Realtime Database
+            db.ref(`registry/${type}/${id}`).remove().then(() => {
+                // Удаляем файл из Firebase Storage
+                if (storagePath) {
+                    return storage.ref(storagePath).delete();
+                }
+            }).then(() => {
+                alert("Item destroyed completely.");
+            }).catch(err => {
+                console.error("Error during deletion: ", err);
+            });
+        }
+    </script>
+</body>
+</html>
