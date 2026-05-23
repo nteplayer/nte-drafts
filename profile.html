@@ -25,7 +25,7 @@ auth.onAuthStateChanged(user => {
                 console.warn("User branch not found. Creating default...");
                 db.ref('users/' + user.uid).set({
                     username: "DimaRusin",
-                    email: user.email || "no-email"
+                    email: "tictacimus1103@mail.ru"
                 }).then(() => {
                     console.log("Profile created successfully.");
                     loadUserProfileData(user.uid, true);
@@ -138,27 +138,3 @@ function switchPresetTab(type, element) {
     const tabs = document.querySelectorAll('#preset-tabs-container .tab-item');
     tabs.forEach(t => t.classList.remove('active'));
     element.classList.add('active');
-
-    const mainTitle = document.getElementById('workspace-dynamic-title');
-    const agentsLabel = document.getElementById('agents-block-label');
-    const enginesLabel = document.getElementById('engines-block-label');
-    const actionBtn = document.getElementById('main-action-node-btn');
-    if(!mainTitle) return;
-
-    if (type === 'roster') {
-        mainTitle.innerHTML = 'мой акк <button class="edit-icon">✏️</button>';
-        if(agentsLabel) agentsLabel.innerText = 'Account agents';
-        if(enginesLabel) enginesLabel.innerText = 'Account engines';
-        if(actionBtn) actionBtn.innerText = 'Manage agents';
-    } else if (type === 'preset1') {
-        mainTitle.innerHTML = 'Preset 1 <button class="edit-icon">✏️</button>';
-        if(agentsLabel) agentsLabel.innerText = 'Preset agents';
-        if(enginesLabel) enginesLabel.innerText = 'Preset engines';
-        if(actionBtn) actionBtn.innerText = 'Manage preset';
-    } else if (type === 'preset2') {
-        mainTitle.innerHTML = 'Preset 2 <button class="edit-icon">✏️</button>';
-        if(agentsLabel) agentsLabel.innerText = 'Preset agents';
-        if(enginesLabel) enginesLabel.innerText = 'Preset engines';
-        if(actionBtn) actionBtn.innerText = 'Manage preset';
-    }
-}
