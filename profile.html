@@ -8,190 +8,13 @@
         :root {
             --bg-main: #0a0a0a;
             --bg-card: #111111;
-            --bg-sidebar: #0f0f0f;
             --text-main: #ffffff;
-            --text-muted: #757575;
             --accent-yellow: #e5fe02;
             --border-color: #222222;
         }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: system-ui, -apple-system, sans-serif;
-            display: flex;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* БОКОВОЕ МЕНЮ */
-        .sidebar {
-            width: 220px;
-            background-color: var(--bg-sidebar);
-            border-right: 1px solid var(--border-color);
-            padding: 20px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-        
-        .logo-area {
-            font-size: 1.1rem;
-            font-weight: 900;
-            letter-spacing: 1px;
-            margin-bottom: 25px;
-            padding-left: 10px;
-        }
-        .logo-area span {
-            color: #ff3b30;
-            font-size: 0.7rem;
-            vertical-align: super;
-            margin-left: 3px;
-        }
-
-        .sidebar-btn {
-            background: transparent;
-            color: #ffffff;
-            border: none;
-            padding: 12px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            text-align: left;
-            font-size: 0.95rem;
-            font-weight: bold;
-            transition: all 0.2s ease;
-            opacity: 0.6;
-        }
-        .sidebar-btn:hover, .sidebar-btn.active { background: #1a1a1a; opacity: 1; }
-        .sidebar-btn.active { color: var(--accent-yellow); }
-
-        /* ОСНОВНОЙ КОНТЕЙНЕР */
-        .main-container {
-            flex-grow: 1;
-            padding: 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: calc(100% - 220px);
-        }
-
-        /* ПЛАШКА ГОСТЕВОГО РЕЖИМА */
-        .guest-badge {
-            background-color: rgba(229, 254, 2, 0.1);
-            border: 1px solid var(--accent-yellow);
-            color: var(--accent-yellow);
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            margin-bottom: 30px;
-            display: none; /* По умолчанию скрыта, включится если юзер гость */
-        }
-
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 20px;
-        }
-
-        .profile-title-area h1 {
-            font-size: 2.2rem;
-            font-weight: 900;
-            margin-bottom: 5px;
-        }
-
-        .profile-title-area p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        .logout-btn {
-            background: transparent;
-            color: #ff3b30;
-            border: 1px solid #ff3b30;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .logout-btn:hover {
-            background: #ff3b30;
-            color: #ffffff;
-        }
-
-        /* КАРТОЧКИ ДАННЫХ */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-        }
-
-        .data-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-        }
-
-        .card-header-area {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .card-title {
-            font-size: 1.2rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-subtitle {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-top: 4px;
-        }
-
-        .account-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .acc-tab {
-            background: #161616;
-            color: #ffffff;
-            border: 1px solid var(--border-color);
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        .acc-tab.active {
-            background: var(--accent-yellow);
-            color: #000000;
-            border-color: var(--accent-yellow);
-        }
-
-        .info-block {
-            background: #080808;
-            border: 1px solid #1a1a1a;
-            border-radius: 8px;
-            padding: 20px;
-            color: #e0e0e0;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
+        body { background-color: var(--bg-main); color: var(--text-main); font-family: sans-serif; padding: 40px; }
+        .guest-badge { background: rgba(229, 254, 2, 0.1); border: 1px solid var(--accent-yellow); color: var(--accent-yellow); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .data-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -199,61 +22,16 @@
 </head>
 <body>
 
-<div class="sidebar">
-    <div class="logo-area">SHIYU OUP<span>BETA</span></div>
-    <button class="sidebar-btn" onclick="navigateTo('home')">Home</button>
-    <button class="sidebar-btn active" onclick="navigateTo('profile')">Profile</button>
-    <button class="sidebar-btn" onclick="navigateTo('drafts')">Drafts</button>
-    <button class="sidebar-btn" onclick="navigateTo('tournaments')">Tournaments</button>
-    <button class="sidebar-btn" onclick="navigateTo('systems')">Draft systems</button>
-    <button class="sidebar-btn" onclick="navigateTo('news')">News</button>
+<div id="guest-badge-status" class="guest-badge">
+    Внимание: Вы находитесь в режиме гостя. Если вы вошли в аккаунт, обновите страницу (Ctrl+F5).
 </div>
 
-<div class="main-container">
-    <div id="guest-badge-status" class="guest-badge">
-        Guest Mode View — Вы просматриваете профиль в режиме гостя. Функция редактирования ограничена.
-    </div>
-
-    <div class="profile-header">
-        <div class="profile-title-area">
-            <h1 id="profile-display-name">Loading...</h1>
-            <p>Личный кабинет управления ростерами и игровыми сессиями</p>
-        </div>
-        <button id="logout-button" class="logout-btn" onclick="handleLogout()">Logout</button>
-    </div>
-
-    <div class="dashboard-grid">
-        <div class="data-card">
-            <div class="card-header-area">
-                <div>
-                    <div class="card-title">Игровые аккаунты</div>
-                    <div class="card-subtitle">Выбор активного профиля для синхронизации и драфтов</div>
-                </div>
-            </div>
-
-            <div class="account-selector" id="account-tabs-container">
-                <div class="acc-tab active">мой акк</div>
-            </div>
-
-            <div style="margin-top: 25px;">
-                <div style="font-size: 0.9rem; font-weight: bold; margin-bottom: 8px; color: var(--text-muted);">АКТИВНЫЕ АГЕНТЫ</div>
-                <div class="info-block" id="agents-display">
-                    No active agents configured for this view.
-                </div>
-            </div>
-
-            <div style="margin-top: 25px;">
-                <div style="font-size: 0.9rem; font-weight: bold; margin-bottom: 8px; color: var(--text-muted);">ПОДКЛЮЧЕННЫЕ ДВИЖКИ</div>
-                <div class="info-block" id="engines-display">
-                    No engines connected.
-                </div>
-            </div>
-        </div>
-    </div>
+<h1 id="profile-display-name">Загрузка данных...</h1>
+<div class="data-card">
+    <p id="debug-info">Статус: ожидание авторизации...</p>
 </div>
 
 <script>
-// Твой рабочий конфигурационный файл с валидным apiKey
 const firebaseConfig = { 
     apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx__JXcTP4", 
     authDomain: "nte-tournaments.firebaseapp.com", 
@@ -264,94 +42,40 @@ const firebaseConfig = {
     appId: "1:1022034023092:web:d269068348b24abed93de1" 
 };
 
-if (!firebase.apps.length) { 
-    firebase.initializeApp(firebaseConfig); 
-}
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-function navigateTo(page) {
-    console.log("Навигация на страницу:", page);
-}
-
-// Выход из аккаунта
-function handleLogout() {
-    auth.signOut().then(() => {
-        window.location.replace("index.html");
-    }).catch((err) => {
-        console.error("Ошибка при выходе:", err);
-    });
-}
-
-// ИСПРАВЛЕННЫЙ И НАДЕЖНЫЙ БЛОК ПРОВЕРКИ АВТОРИЗАЦИИ
 auth.onAuthStateChanged(function(user) {
-    const guestBadge = document.getElementById("guest-badge-status");
-    const logoutBtn = document.getElementById("logout-button");
+    const debug = document.getElementById("debug-info");
     const nameDisplay = document.getElementById("profile-display-name");
+    const guestBadge = document.getElementById("guest-badge-status");
 
     if (user) {
-        // ПОЛЬЗОВАТЕЛЬ УСПЕШНО ВОШЕЛ!
-        console.log("Пользователь авторизован:", user.uid);
+        debug.innerText = "Авторизован как: " + user.uid;
+        guestBadge.style.display = "none";
         
-        // Прячем гостевую плашку и показываем кнопку Logout
-        if (guestBadge) guestBadge.style.display = "none";
-        if (logoutBtn) logoutBtn.style.display = "block";
-
-        // Загружаем данные пользователя из Realtime Database
-        db.ref("users/" + user.uid).once("value").then(function(snapshot) {
-            const data = snapshot.val();
-            if (data) {
-                // Выводим имя пользователя в заголовок
-                if (nameDisplay) {
-                    nameDisplay.innerText = data.username || "Player";
+        // Читаем данные по конкретному пользователю
+        db.ref("users/" + user.uid).once("value")
+            .then(function(snapshot) {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    nameDisplay.innerText = "Привет, " + (data.username || "Игрок");
+                    debug.innerText = "Данные успешно получены из базы.";
+                } else {
+                    nameDisplay.innerText = "Аккаунт найден, но данных в БД нет.";
+                    debug.innerText = "Путь users/" + user.uid + " пуст.";
                 }
-                
-                // Рендерим блок игровых аккаунтов, если они есть в БД
-                if (data.accounts) {
-                    const tabsContainer = document.getElementById("account-tabs-container");
-                    if (tabsContainer) {
-                        tabsContainer.innerHTML = ""; // Очищаем старые тестовые вкладки
-                        
-                        Object.keys(data.accounts).forEach((accKey, index) => {
-                            const acc = data.accounts[accKey];
-                            const tab = document.createElement("div");
-                            tab.className = `acc-tab ${index === 0 ? 'active' : ''}`;
-                            tab.innerText = acc.customName || accKey;
-                            
-                            // Навешиваем клик для вывода содержимого аккаунта
-                            tab.onclick = function() {
-                                document.querySelectorAll(".acc-tab").forEach(t => t.classList.remove("active"));
-                                tab.classList.add("active");
-                                document.getElementById("agents-display").innerHTML = acc.agentsHtml || "No configuration.";
-                                document.getElementById("engines-display").innerHTML = acc.enginesHtml || "No connected engines.";
-                            };
-                            
-                            tabsContainer.appendChild(tab);
-                        });
-
-                        // Загружаем контент первого аккаунта по умолчанию
-                        const firstKey = Object.keys(data.accounts)[0];
-                        document.getElementById("agents-display").innerHTML = data.accounts[firstKey].agentsHtml || "No active agents.";
-                        document.getElementById("engines-display").innerHTML = data.accounts[firstKey].enginesHtml || "No connected engines.";
-                    }
-                }
-            } else {
-                if (nameDisplay) nameDisplay.innerText = "New Player";
-            }
-        }).catch(function(error) {
-            console.error("Ошибка загрузки профиля из Firebase БД:", error);
-        });
-
+            })
+            .catch(function(error) {
+                debug.innerText = "Ошибка БД: " + error.message;
+            });
     } else {
-        // ПОЛЬЗОВАТЕЛЬ НЕ АВТОРИЗОВАН (ГОСТЬ)
-        console.log("Пользователь не найден. Переключение в гостевой режим.");
-        
-        if (nameDisplay) nameDisplay.innerText = "Guest Mode";
-        if (guestBadge) guestBadge.style.display = "block";   // Показываем плашку Guest View
-        if (logoutBtn) logoutBtn.style.display = "none";      // Прячем кнопку выхода
+        debug.innerText = "Пользователь не авторизован.";
+        guestBadge.style.display = "block";
+        nameDisplay.innerText = "Гостевой режим";
     }
 });
 </script>
-
 </body>
 </html>
