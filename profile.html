@@ -3,273 +3,304 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tournament Panel</title>
+    <title>SHIYU OUP PANEL</title>
     <style>
         :root {
             --bg-main: #0a0a0a;
-            --bg-card: #141414;
-            --bg-tab: #1f1f1f;
+            --bg-card: #111111;
+            --bg-sidebar: #0f0f0f;
+            --bg-tab-inactive: #1a1a1a;
             --text-main: #ffffff;
             --text-muted: #757575;
             --accent-yellow: #e5fe02;
             --border-color: #222222;
         }
+        
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
-            font-family: sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* ЛЕВОЕ МЕНЮ НАВИГАЦИИ */
+        /* БОКОВОЕ МЕНЮ (КОПИЯ ФОТО 1) */
         .sidebar {
-            width: 240px;
-            background-color: #0c0c0c;
+            width: 220px;
+            background-color: var(--bg-sidebar);
             border-right: 1px solid var(--border-color);
-            padding: 25px 15px;
+            padding: 20px 12px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             flex-shrink: 0;
         }
+        
+        .logo-area {
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+            padding-left: 10px;
+        }
+        .logo-area span {
+            color: #ff3b30;
+            font-size: 0.7rem;
+            vertical-align: super;
+            margin-left: 3px;
+        }
+
         .sidebar-btn {
-            background: #141414;
+            background: transparent;
             color: #ffffff;
             border: none;
-            padding: 14px 20px;
-            border-radius: 12px;
+            padding: 12px 16px;
+            border-radius: 20px;
             cursor: pointer;
             text-align: left;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: bold;
             transition: all 0.2s ease;
         }
-        .sidebar-btn:hover { background: #1c1c1c; }
+        .sidebar-btn:hover { background: #1a1a1a; }
         .sidebar-btn.active {
             background-color: var(--accent-yellow);
             color: #000000;
         }
 
-        /* ОСНОВНАЯ РАБОЧАЯ ОБЛАСТЬ */
+        /* ОСНОВНОЙ КОНТЕЙНЕР */
         .main-container {
             flex-grow: 1;
-            padding: 25px;
-            max-width: 1100px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
+            gap: 20px;
         }
 
-        /* ГЛОБАЛЬНАЯ ШАПКА САЙТА (Связана со всеми вкладками) */
+        /* ШАПКА */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
             border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
         }
-        .user-info-block {
+        
+        .user-profile-header {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        .avatar-placeholder {
-            width: 45px;
-            height: 45px;
-            background: #2a2a2a;
+        .avatar {
+            width: 48px;
+            height: 48px;
+            background: #252525;
             border-radius: 50%;
+            border: 2px solid #333;
         }
-        .user-names {
+        .user-titles {
             display: flex;
             flex-direction: column;
         }
-        .main-username {
+        .username-txt {
             font-size: 1.1rem;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
-        .sub-username {
-            font-size: 0.8rem;
+        .uid-txt {
+            font-size: 0.75rem;
             color: var(--accent-yellow);
         }
-        
-        /* ДИНАМИЧЕСКИЙ ПОИСК */
-        .search-box { position: relative; }
-        .search-trigger-btn {
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* ПОИСК */
+        .search-wrapper { position: relative; }
+        .search-btn {
             background: #141414;
             color: #fff;
             border: 1px solid var(--border-color);
-            padding: 8px 18px;
-            border-radius: 20px;
+            padding: 8px 16px;
+            border-radius: 18px;
             cursor: pointer;
             font-size: 0.85rem;
         }
-        .dropdown {
+        .search-dropdown {
             position: absolute;
             top: 40px; right: 0;
-            background: var(--bg-card);
+            background: #161616;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            width: 280px;
+            width: 260px;
             display: none;
             z-index: 100;
-            padding: 12px;
-            box-shadow: 0px 8px 20px rgba(0,0,0,0.5);
+            padding: 10px;
         }
-        .dropdown input {
+        .search-dropdown input {
             width: 100%;
-            background: #0a0a0a;
+            background: #000;
             border: 1px solid var(--border-color);
             color: #fff;
-            padding: 8px 12px;
+            padding: 8px;
             border-radius: 6px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             outline: none;
         }
-        .dropdown input:focus { border-color: var(--accent-yellow); }
-        #search-results-container { max-height: 200px; overflow-y: auto; }
-
-        .results-box-search {
+        .search-results { max-height: 180px; overflow-y: auto; }
+        .search-row {
             display: flex;
             justify-content: space-between;
-            padding: 10px;
+            padding: 8px;
             cursor: pointer;
-            font-size: 0.9rem;
-            border-bottom: 1px solid var(--border-color);
-            color: #ffffff;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #222;
         }
-        .results-box-search:hover { background: #222222; }
+        .search-row:hover { background: #222; }
 
         .back-btn {
             display: none;
-            background: none;
+            background: transparent;
             border: 1px solid var(--border-color);
             color: #fff;
             padding: 6px 12px;
             border-radius: 6px;
             cursor: pointer;
-            margin-bottom: 15px;
             align-self: flex-start;
         }
 
-        /* ЭКРАНЫ ПЕРЕКЛЮЧЕНИЯ МЕНЮ */
-        .app-screen { display: none; }
-        .app-screen.active-screen { display: block; }
+        /* ЭКРАНЫ */
+        .screen-content { display: none; }
+        .screen-content.active-screen { display: block; }
 
-        /* ВНУТРЕННИЕ СУБ-ТАБЫ ПРОФИЛЯ */
-        .tabs-menu-container {
-            background: #111111;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 20px;
+        /* ВЕРХНЯЯ ПАНЕЛЬ ТАБОВ (КОПИЯ С ФОТО 1) */
+        .tabs-wrapper-block {
+            background: #121212;
+            border-radius: 14px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
-        .tab-row {
+        .tabs-inner-row {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
-        .row-label {
-            width: 120px;
+        .tabs-side-label {
+            width: 100px;
             font-size: 0.8rem;
             color: var(--text-muted);
             text-align: right;
-            padding-right: 10px;
-        }
-        .tab-item {
-            padding: 6px 14px;
-            background: var(--bg-tab);
-            border-radius: 15px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            color: #ccc;
-            user-select: none;
-        }
-        .tab-item.active {
-            background: var(--accent-yellow);
-            color: #000;
             font-weight: bold;
         }
-        .add-tab-btn {
-            background: none;
+        .tabs-list-items {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-node {
+            padding: 6px 16px;
+            background: var(--bg-tab-inactive);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaaaaa;
+            user-select: none;
+            transition: all 0.15s ease;
+        }
+        .tab-node.active {
+            background: var(--accent-yellow);
+            color: #000000;
+        }
+        
+        .plus-action-btn {
+            background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             cursor: pointer;
-            padding: 0 5px;
+            padding: 0 6px;
+            line-height: 1;
         }
+        .plus-action-btn:hover { color: #fff; }
 
-        /* БЛОК ДАННЫХ АККАУНТА */
-        .workspace-box {
+        /* КОНТЕНТНЫЙ БЛОК */
+        .workspace-panel {
             background: var(--bg-card);
-            border-radius: 8px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #1a1a1a;
         }
-        .workspace-header {
+        .workspace-title-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
-            margin-bottom: 20px;
+            padding-bottom: 14px;
+            margin-bottom: 24px;
         }
-        .title-with-edit {
+        .workspace-title-area {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
+            font-weight: bold;
         }
-        .edit-icon-btn {
-            background: none;
+        .trash-delete-btn {
+            background: transparent;
             border: none;
             color: var(--text-muted);
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
+            transition: color 0.2s;
         }
-        .admin-panel-link {
-            display: none;
-            background: var(--accent-yellow);
-            color: #000;
-            text-decoration: none;
-            padding: 6px 14px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: bold;
-        }
+        .trash-delete-btn:hover { color: #ff3b30; }
 
-        .info-section { margin-bottom: 20px; }
-        .section-top-bar {
+        .content-node-section { margin-bottom: 25px; }
+        .node-section-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
-        .section-title { font-size: 1.1rem; font-weight: bold; }
-        .manage-btn {
-            background: #222;
+        .node-title { font-size: 1.1rem; font-weight: bold; }
+        .node-action-btn {
+            background: #1c1c1c;
             border: 1px solid var(--border-color);
             color: #fff;
-            padding: 6px 14px;
-            border-radius: 15px;
+            padding: 6px 16px;
+            border-radius: 20px;
             font-size: 0.8rem;
+            font-weight: bold;
             cursor: pointer;
         }
-        .empty-placeholder-text {
+        .node-action-btn:hover { background: #252525; }
+
+        .empty-placeholder {
             color: var(--text-muted);
             font-size: 0.85rem;
-            background: #1a1a1a;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px dashed #333;
-        }
-        
-        .placeholder-screen-box {
-            background: var(--bg-card);
+            background: #161616;
+            padding: 14px;
             border-radius: 8px;
-            padding: 40px;
+            border: 1px dashed #282828;
+        }
+
+        .screen-fallback-box {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 50px;
             text-align: center;
             color: var(--text-muted);
             border: 1px solid var(--border-color);
@@ -282,96 +313,115 @@
 <body>
 
 <div class="sidebar">
+    <div class="logo-area">SHIYU OUP<span>BETA</span></div>
     <button class="sidebar-btn" onclick="switchMainScreen('home', this)">Home</button>
-    <button class="sidebar-btn active" onclick="switchMainScreen('profile', this)">Profile</button>
+    <button class="sidebar-btn active" id="menu-btn-profile" onclick="switchMainScreen('profile', this)">Profile</button>
     <button class="sidebar-btn" onclick="switchMainScreen('drafts', this)">Drafts</button>
     <button class="sidebar-btn" onclick="switchMainScreen('tournaments', this)">Tournaments</button>
+    <button class="sidebar-btn" onclick="switchMainScreen('draft_systems', this)">Draft systems</button>
+    <button class="sidebar-btn" onclick="switchMainScreen('news', this)">News</button>
 </div>
 
 <div class="main-container">
 
     <header>
-        <div class="user-info-block">
-            <div class="avatar-placeholder"></div>
-            <div class="user-names">
-                <span id="profile-display-name" class="main-username">Loading...</span>
-                <span id="sub-name-label" class="sub-username">Connecting...</span>
+        <div class="user-profile-header">
+            <div class="avatar"></div>
+            <div class="user-titles">
+                <span id="profile-display-name" class="username-txt">Loading...</span>
+                <span id="sub-name-label" class="uid-txt">Connecting...</span>
             </div>
         </div>
-        <div class="search-box">
-            <button class="search-trigger-btn" onclick="toggleSearchDropdown()">Search user &#9662;</button>
-            <div id="search-dropdown" class="dropdown">
-                <input type="text" id="search-input" placeholder="Enter username..." oninput="searchUserInDB()">
-                <div id="search-results-container"></div>
+        <div class="header-controls">
+            <div class="search-wrapper">
+                <button class="search-btn" onclick="toggleSearchDropdown()">Search user &#9662;</button>
+                <div id="search-dropdown" class="search-dropdown">
+                    <input type="text" id="search-input" placeholder="Enter username..." oninput="searchUserInDB()">
+                    <div id="search-results-container" class="search-results"></div>
+                </div>
             </div>
         </div>
     </header>
 
     <button id="back-self-btn" class="back-btn" onclick="returnToOwnProfile()">Back to my profile</button>
 
-    <div id="screen-home" class="app-screen">
-        <div class="placeholder-screen-box">
-            <h2>Home View</h2>
-            <p>Welcome to the main tournament dashboard platform.</p>
+    <div id="screen-home" class="screen-content">
+        <div class="screen-fallback-box">
+            <h2>Home Dashboard</h2>
+            <p>Welcome to Shiyu Oup platform workspace.</p>
         </div>
     </div>
 
-    <div id="screen-profile" class="app-screen active-screen">
-        <div class="tabs-menu-container">
-            <div class="tab-row" id="account-tabs-container">
-                <div class="row-label">// Accounts</div>
-                <div class="tab-item active" onclick="switchAccountTab('acc1', this)">мой акк</div>
-                <div class="tab-item" onclick="switchAccountTab('acc2', this)">Account 2</div>
-                <div class="tab-item" onclick="switchAccountTab('acc3', this)">Account 3</div>
-                <button class="add-tab-btn" onclick="createNewAccountInTabs()">+</button>
+    <div id="screen-profile" class="screen-content active-screen">
+        
+        <div class="tabs-wrapper-block">
+            <div class="tabs-inner-row">
+                <div class="tabs-side-label">// Accounts</div>
+                <div id="account-tabs-container" class="tabs-list-items">
+                    </div>
+                <button class="plus-action-btn" onclick="createNewAccountNode()">+</button>
             </div>
-            <div class="tab-row" id="preset-tabs-container">
-                <div class="row-label">// Presets</div>
-                <div class="tab-item active" onclick="switchPresetTab('roster', this)">Roster</div>
-                <div class="tab-item" onclick="switchPresetTab('preset1', this)">Preset 1</div>
-                <div class="tab-item" onclick="switchPresetTab('preset2', this)">Preset 2</div>
-                <button class="add-tab-btn" onclick="createNewPresetInTabs()">+</button>
+            
+            <div class="tabs-inner-row">
+                <div class="tabs-side-label">// Presets</div>
+                <div id="preset-tabs-container" class="tabs-list-items">
+                    </div>
+                <button class="plus-action-btn" onclick="createNewPresetNode()">+</button>
             </div>
         </div>
 
-        <div class="workspace-box" id="main-workspace-box">
-            <div class="workspace-header">
-                <div class="title-with-edit">
+        <div class="workspace-panel">
+            <div class="workspace-title-row">
+                <div class="workspace-title-area">
                     <span id="workspace-dynamic-title">мой акк</span>
-                    <button class="edit-icon-btn">&#9999;</button>
+                    <button class="edit-icon-btn" style="background:none;border:none;color:#555;cursor:pointer;">&#9999;</button>
                 </div>
-                <a href="admin.html" id="admin-panel-btn" class="admin-panel-link">Admin Panel</a>
+                <button class="trash-delete-btn" onclick="deleteCurrentSelectedTab()">🗑️</button>
             </div>
 
-            <div class="info-section">
-                <div class="section-top-bar">
-                    <span id="agents-block-label" class="section-title">Account agents</span>
-                    <button id="main-action-node-btn" class="manage-btn">Manage agents</button>
+            <div class="content-node-section">
+                <div class="node-section-top">
+                    <span id="agents-block-label" class="node-title">Account agents</span>
+                    <button id="main-action-node-btn" class="node-action-btn">Manage agents</button>
                 </div>
-                <div id="agents-content-placeholder" class="empty-placeholder-text">No active agents configured for this view.</div>
+                <div id="agents-content-placeholder" class="empty-placeholder">No active agents configured for this view.</div>
             </div>
 
-            <div class="info-section">
-                <div class="section-top-bar">
-                    <span id="engines-block-label" class="section-title">Account engines</span>
-                    <button class="manage-btn">Manage engines</button>
+            <div class="content-node-section">
+                <div class="node-section-top">
+                    <span id="engines-block-label" class="node-title">Account engines</span>
+                    <button class="node-action-btn">Manage engines</button>
                 </div>
-                <div id="engines-content-placeholder" class="empty-placeholder-text">No engines connected.</div>
+                <div id="engines-content-placeholder" class="empty-placeholder">No engines connected.</div>
             </div>
         </div>
     </div>
 
-    <div id="screen-drafts" class="app-screen">
-        <div class="placeholder-screen-box">
-            <h2>Drafts View</h2>
-            <p>Your current workspace drafts list is empty.</p>
+    <div id="screen-drafts" class="screen-content">
+        <div class="screen-fallback-box">
+            <h2>Drafts Area</h2>
+            <p>Your workspace creation drafts are empty.</p>
         </div>
     </div>
 
-    <div id="screen-tournaments" class="app-screen">
-        <div class="placeholder-screen-box">
-            <h2>Tournaments View</h2>
-            <p>Active grid, matches and match history data.</p>
+    <div id="screen-tournaments" class="screen-content">
+        <div class="screen-fallback-box">
+            <h2>Tournaments</h2>
+            <p>Active grids and match lists.</p>
+        </div>
+    </div>
+
+    <div id="screen-draft_systems" class="screen-content">
+        <div class="screen-fallback-box">
+            <h2>Draft Systems Setup</h2>
+            <p>Configuration panel for draft selection systems.</p>
+        </div>
+    </div>
+
+    <div id="screen-news" class="screen-content">
+        <div class="screen-fallback-box">
+            <h2>Latest News</h2>
+            <p>Platform system updates and patchlogs.</p>
         </div>
     </div>
 
@@ -395,187 +445,258 @@ const db = firebase.database();
 
 let currentLoggedUid = null;
 let viewTargetUid = null; 
-let currentSelectedAccount = "мой акк";
-let currentSelectedPreset = "roster";
 
-// Авторизация и первичная связка данных
+let currentSelectedAccount = "мой акк"; 
+let currentSelectedPreset = "Roster";
+
+// Отслеживание авторизации
 auth.onAuthStateChanged(function(user) { 
     if (user) { 
         currentLoggedUid = user.uid; 
         viewTargetUid = user.uid; 
-        loadHeaderAndProfileData(user.uid, true); 
+        initUserStructureInDB(user.uid);
     } else { 
-        document.getElementById("profile-display-name").innerText = "Offline"; 
-        document.getElementById("sub-name-label").innerText = "Demo View";
-    }; 
+        document.getElementById("profile-display-name").innerText = "Guest Mode"; 
+        document.getElementById("sub-name-label").innerText = "Offline";
+    }
 });
 
-/* СВЯЗАННОЕ ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ БОКОВОГО МЕНЮ */
-function switchMainScreen(screenName, btnElement) {
-    const sideButtons = document.querySelectorAll(".sidebar-btn");
-    sideButtons.forEach(btn => btn.classList.remove("active"));
-    btnElement.classList.add("active");
-
-    const allScreens = document.querySelectorAll(".app-screen");
-    allScreens.forEach(screen => screen.classList.remove("active-screen"));
-    
-    const targetScreen = document.getElementById("screen-" + screenName);
-    if(targetScreen) targetScreen.classList.add("active-screen");
-
-    // Если перешли во вкладку профиля, проверяем, чьи данные нужно отобразить
-    if (screenName === 'profile' && viewTargetUid) {
-        loadHeaderAndProfileData(viewTargetUid, viewTargetUid === currentLoggedUid);
-    }
+// Проверяем наличие дефолтных табов в базе, чтобы не было пусто при первом входе
+function initUserStructureInDB(uid) {
+    const userRef = db.ref("users/" + uid);
+    userRef.once("value").then(snapshot => {
+        if (!snapshot.exists()) {
+            // Если юзер новый — создаем базовую структуру без мусора
+            userRef.set({
+                username: "User_" + uid.substring(0, 5),
+                accounts: {
+                    "мой акк": {
+                        customName: "мой акк",
+                        agentsHtml: "No active agents configured for this view.",
+                        enginesHtml: "No engines connected.",
+                        presets: {
+                            "Roster": { agentsHtml: "Preset is empty.", enginesHtml: "Preset is offline." }
+                        }
+                    }
+                }
+            }).then(() => { loadHeaderAndProfileData(uid, true); });
+        } else {
+            loadHeaderAndProfileData(uid, true);
+        }
+    });
 }
 
-/* СИНХРОННАЯ ЗАГРУЗКА ИМЕНИ В ШАПКУ И ДАННЫХ В ПРОФИЛЬ */
+/* СИНХРОННЫЙ ВЫВОД ИМЕНИ И ТАБОВ ИЗ FIREBASE */
 function loadHeaderAndProfileData(uid, isItMe) { 
     const backBtn = document.getElementById("back-self-btn");
     if(backBtn) { backBtn.style.display = isItMe ? "none" : "inline-block"; }
 
-    db.ref("users/" + uid).once("value").then(function(snapshot) { 
+    db.ref("users/" + uid).on("value", function(snapshot) { 
         const data = snapshot.val(); 
         if (data) { 
-            // Меняем имя в глобальной шапке сайта
             document.getElementById("profile-display-name").innerText = data.username || "unknown"; 
-            document.getElementById("sub-name-label").innerText = data.username || "unknown"; 
+            document.getElementById("sub-name-label").innerText = "id: " + uid.substring(0,8); 
             
-            if (isItMe && data.username) { checkAdminStatus(data.username); }; 
+            // Строим списки табов прямо из веток БД
+            renderAccountTabs(data.accounts || {});
             
-            // Сразу же обновляем контент внутренних вкладок профиля
-            loadTabContentFromDB(uid);
+            const currentAccData = data.accounts ? data.accounts[currentSelectedAccount] : null;
+            renderPresetTabs(currentAccData ? currentAccData.presets : {});
+            
+            // Выводим контент в рабочую область
+            updateWorkspaceDOM(currentAccData);
         }
-    }).catch(function(err) { console.error(err); }); 
-};
-
-/* СВЯЗЫВАНИЕ ТАБОВ С НАПОЛНЕНИЕМ ИЗ БАЗЫ */
-function loadTabContentFromDB(uid) {
-    if (!uid || !db) return;
-
-    const accountPath = "users/" + uid + "/accounts/" + currentSelectedAccount;
-    
-    db.ref(accountPath).once("value").then(function(snapshot) {
-        const accountData = snapshot.val() || {};
-        
-        const mainTitle = document.getElementById("workspace-dynamic-title");
-        if (mainTitle) {
-            mainTitle.textContent = accountData.customName || currentSelectedAccount;
-        }
-
-        const presetData = (accountData.presets && accountData.presets[currentSelectedPreset]) || null;
-        const aBox = document.getElementById("agents-content-placeholder");
-        const eBox = document.getElementById("engines-content-placeholder");
-
-        if (currentSelectedPreset === "roster") {
-            document.getElementById("agents-block-label").textContent = "Account agents";
-            document.getElementById("engines-block-label").textContent = "Account engines";
-            document.getElementById("main-action-node-btn").textContent = "Manage agents";
-            
-            if(aBox) aBox.innerHTML = accountData.agentsHtml || "No active agents configured for this view.";
-            if(eBox) eBox.innerHTML = accountData.enginesHtml || "No engines connected.";
-        } else {
-            document.getElementById("agents-block-label").textContent = "Preset agents";
-            document.getElementById("engines-block-label").textContent = "Preset engines";
-            document.getElementById("main-action-node-btn").textContent = "Manage preset";
-            
-            if(aBox) aBox.innerHTML = presetData ? (presetData.agentsHtml || "Preset is empty.") : "Preset agents are empty.";
-            if(eBox) eBox.innerHTML = presetData ? (presetData.enginesHtml || "Preset is offline.") : "Preset engines are offline.";
-        }
-    }).catch(function(err) { console.error(err); });
+    }); 
 }
 
-/* КЛИКИ ПО АККАУНТАМ */
-function switchAccountTab(type, element) { 
-    const tabs = document.querySelectorAll("#account-tabs-container .tab-item"); 
-    tabs.forEach(t => t.classList.remove("active")); 
-    element.classList.add("active"); 
+/* ОТРИСОВКА ДИНАМИЧЕСКИХ ТАБОВ ACCOUNTS */
+function renderAccountTabs(accountsObj) {
+    const container = document.getElementById("account-tabs-container");
+    container.innerHTML = "";
     
-    currentSelectedAccount = element.textContent.trim();
-    loadTabContentFromDB(viewTargetUid);
-};
+    let keys = Object.keys(accountsObj);
+    if(keys.length === 0) return;
 
-/* КЛИКИ ПО ПРЕСЕТАМ */
-function switchPresetTab(type, element) { 
-    const tabs = document.querySelectorAll("#preset-tabs-container .tab-item"); 
-    tabs.forEach(t => t.classList.remove("active")); 
-    element.classList.add("active"); 
-    
-    currentSelectedPreset = type;
-    loadTabContentFromDB(viewTargetUid);
-};
-
-/* ПОЛНОСТЬЮ СВЯЗАННЫЙ ПОИСК ИГРОКОВ */
-function toggleSearchDropdown() { 
-    const drop = document.getElementById("search-dropdown"); 
-    if(drop) { drop.style.display = drop.style.display === "block" ? "none" : "block"; }; 
-}
-
-function searchUserInDB() { 
-    const query = document.getElementById("search-input").value.trim(); 
-    const resContainer = document.getElementById("search-results-container"); 
-    if (!resContainer) return; 
-    
-    if (!query) {
-        resContainer.innerHTML = "";
-        return;
+    // Проверка на валидность выбранного таба
+    if(!accountsObj[currentSelectedAccount]) {
+        currentSelectedAccount = keys[0];
     }
+
+    keys.forEach(accName => {
+        const div = document.createElement("div");
+        div.className = "tab-node" + (accName === currentSelectedAccount ? " active" : "");
+        div.textContent = accName;
+        div.onclick = function() {
+            currentSelectedAccount = accName;
+            currentSelectedPreset = "Roster"; // Сброс на дефолт при смене акка
+            loadHeaderAndProfileData(viewTargetUid, viewTargetUid === currentLoggedUid);
+        };
+        container.appendChild(div);
+    });
+}
+
+/* ОТРИСОВКА ДИНАМИЧЕСКИХ ТАБОВ PRESETS */
+function renderPresetTabs(presetsObj) {
+    const container = document.getElementById("preset-tabs-container");
+    container.innerHTML = "";
     
-    db.ref("users").orderByChild("username").equalTo(query).once("value").then(function(snapshot) { 
-        resContainer.innerHTML = ""; 
-        if (!snapshot.exists()) { 
-            resContainer.innerHTML = "<div style='padding:10px; color:#757575; font-size:0.85rem;'>User not found</div>"; 
-            return; 
-        }; 
-        snapshot.forEach(function(child) { 
-            const userKey = child.key; 
-            const userData = child.val(); 
-            
+    let keys = presetsObj ? Object.keys(presetsObj) : [];
+    
+    // Если в ветке пусто — всегда выводим системный Roster
+    if(!keys.includes("Roster")) {
+        keys.unshift("Roster");
+    }
+    if(!keys.includes(currentSelectedPreset)) {
+        currentSelectedPreset = "Roster";
+    }
+
+    keys.forEach(presetName => {
+        const div = document.createElement("div");
+        div.className = "tab-node" + (presetName === currentSelectedPreset ? " active" : "");
+        div.textContent = presetName;
+        div.onclick = function() {
+            currentSelectedPreset = presetName;
+            loadHeaderAndProfileData(viewTargetUid, viewTargetUid === currentLoggedUid);
+        };
+        container.appendChild(div);
+    });
+}
+
+/* ОБНОВЛЕНИЕ ТЕКСТА И ЗАГОЛОВКОВ */
+function updateWorkspaceDOM(accountData) {
+    const mainTitle = document.getElementById("workspace-dynamic-title");
+    if (mainTitle) mainTitle.textContent = currentSelectedAccount;
+
+    const aBox = document.getElementById("agents-content-placeholder");
+    const eBox = document.getElementById("engines-content-placeholder");
+    
+    const agentsLabel = document.getElementById("agents-block-label");
+    const enginesLabel = document.getElementById("engines-block-label");
+    const actionBtn = document.getElementById("main-action-node-btn");
+
+    if (!accountData) return;
+
+    if (currentSelectedPreset === "Roster") {
+        if(agentsLabel) agentsLabel.textContent = "Account agents";
+        if(enginesLabel) enginesLabel.textContent = "Account engines";
+        if(actionBtn) actionBtn.textContent = "Manage agents";
+        
+        if(aBox) aBox.innerHTML = accountData.agentsHtml || "No active agents configured for this view.";
+        if(eBox) eBox.innerHTML = accountData.enginesHtml || "No engines connected.";
+    } else {
+        if(agentsLabel) agentsLabel.textContent = "Preset agents";
+        if(enginesLabel) enginesLabel.textContent = "Preset engines";
+        if(actionBtn) actionBtn.textContent = "Manage preset";
+        
+        const currentPresetData = accountData.presets ? accountData.presets[currentSelectedPreset] : null;
+        if(aBox) aBox.innerHTML = currentPresetData ? (currentPresetData.agentsHtml || "Preset is empty.") : "Preset agents are empty.";
+        if(eBox) eBox.innerHTML = currentPresetData ? (currentPresetData.enginesHtml || "Preset is offline.") : "Preset engines are offline.";
+    }
+}
+
+/* ДОБАВЛЕНИЕ НОВЫХ СУБ-ЭЛЕМЕНТОВ ЧЕРЕЗ ПЛЮСИК */
+function createNewAccountNode() {
+    if(viewTargetUid !== currentLoggedUid) return alert("You can customize only your own profile!");
+    
+    const name = prompt("Enter new Account name:");
+    if(!name) return;
+    
+    const path = "users/" + currentLoggedUid + "/accounts/" + name;
+    db.ref(path).set({
+        customName: name,
+        agentsHtml: "No active agents configured for this view.",
+        enginesHtml: "No engines connected.",
+        presets: {
+            "Roster": { agentsHtml: "Preset is empty.", enginesHtml: "Preset is offline." }
+        }
+    }).then(() => {
+        currentSelectedAccount = name;
+        currentSelectedPreset = "Roster";
+    });
+}
+
+function createNewPresetNode() {
+    if(viewTargetUid !== currentLoggedUid) return alert("You can customize only your own profile!");
+    
+    const name = prompt("Enter new Preset name:");
+    if(!name) return;
+    
+    const path = "users/" + currentLoggedUid + "/accounts/" + currentSelectedAccount + "/presets/" + name;
+    db.ref(path).set({
+        agentsHtml: "Preset " + name + " agents are empty.",
+        enginesHtml: "Preset " + name + " engines are offline."
+    }).then(() => {
+        currentSelectedPreset = name;
+    });
+}
+
+/* УДАЛЕНИЕ ВЫБРАННОЙ ВКЛАДКИ ЧЕРЕЗ КОРЗИНУ */
+function deleteCurrentSelectedTab() {
+    if(viewTargetUid !== currentLoggedUid) return alert("Action denied!");
+    
+    // Если выбран сторонний пресет — удаляем пресет
+    if(currentSelectedPreset !== "Roster") {
+        if(confirm("Delete preset '" + currentSelectedPreset + "'?")) {
+            db.ref("users/" + currentLoggedUid + "/accounts/" + currentSelectedAccount + "/presets/" + currentSelectedPreset).remove()
+            .then(() => { currentSelectedPreset = "Roster"; });
+        }
+    } else {
+        // Иначе удаляем весь аккаунт целиком
+        if(currentSelectedAccount === "мой акк") return alert("You cannot delete your main account tab!");
+        if(confirm("Delete account '" + currentSelectedAccount + "' entirely?")) {
+            db.ref("users/" + currentLoggedUid + "/accounts/" + currentSelectedAccount).remove();
+        }
+    }
+}
+
+/* ПЕРЕКЛЮЧЕНИЕ СТРАНИЦ МЕНЮ */
+function switchMainScreen(screenName, btnElement) {
+    document.querySelectorAll(".sidebar-btn").forEach(btn => btn.classList.remove("active"));
+    btnElement.classList.add("active");
+
+    document.querySelectorAll(".screen-content").forEach(sc => sc.classList.remove("active-screen"));
+    const target = document.getElementById("screen-" + screenName);
+    if(target) target.classList.add("active-screen");
+}
+
+/* СИСТЕМНЫЙ ПОИСК ИГРОКОВ */
+function toggleSearchDropdown() {
+    const drop = document.getElementById("search-dropdown");
+    drop.style.display = drop.style.display === "block" ? "none" : "block";
+}
+
+function searchUserInDB() {
+    const query = document.getElementById("search-input").value.trim();
+    const container = document.getElementById("search-results-container");
+    if(!query) { container.innerHTML = ""; return; }
+
+    db.ref("users").orderByChild("username").equalTo(query).once("value").then(snapshot => {
+        container.innerHTML = "";
+        if(!snapshot.exists()) {
+            container.innerHTML = "<div style='padding:8px;color:#555;'>Not found</div>";
+            return;
+        }
+        snapshot.forEach(child => {
             const row = document.createElement("div");
-            row.className = "results-box-search";
-            row.innerHTML = "<span>" + userData.username + "</span><span style='color:#e5fe02;'>Open &rarr;</span>";
-            
-            // При клике на игрока в поиске — сайт автоматически переведет интерфейс на экран Profile и загрузит его данные
-            row.onclick = function() { viewTargetUser(userKey); };
-            resContainer.appendChild(row);
-        }); 
-    }); 
+            row.className = "search-row";
+            row.innerHTML = `<span>${child.val().username}</span><span style='color:var(--accent-yellow)'>View &rarr;</span>`;
+            row.onclick = function() {
+                viewTargetUid = child.key;
+                switchMainScreen('profile', document.getElementById("menu-btn-profile"));
+                loadHeaderAndProfileData(child.key, false);
+                document.getElementById("search-dropdown").style.display = "none";
+            };
+            container.appendChild(row);
+        });
+    });
 }
 
-function viewTargetUser(uid) { 
-    viewTargetUid = uid; 
-    
-    // Перекидываем фокус отображения на Profile вкладку меню
-    const profileBtn = document.querySelector(".sidebar-btn:nth-child(2)");
-    switchMainScreen('profile', profileBtn);
-    
-    loadHeaderAndProfileData(uid, false); 
-    
-    if(document.getElementById("search-dropdown")) document.getElementById("search-dropdown").style.display = "none"; 
-    if(document.getElementById("search-input")) document.getElementById("search-input").value = "";
-}
-
-function returnToOwnProfile() { 
-    if (currentLoggedUid) { 
+function returnToOwnProfile() {
+    if(currentLoggedUid) {
         viewTargetUid = currentLoggedUid;
-        const profileBtn = document.querySelector(".sidebar-btn:nth-child(2)");
-        switchMainScreen('profile', profileBtn);
-        loadHeaderAndProfileData(currentLoggedUid, true); 
-    }; 
+        loadHeaderAndProfileData(currentLoggedUid, true);
+    }
 }
-
-function checkAdminStatus(username) { 
-    db.ref("admins/" + username).once("value").then(function(snapshot) { 
-        const isAdminButton = document.getElementById("admin-panel-btn"); 
-        if (snapshot.exists() && snapshot.val() === true) { 
-            if (isAdminButton) isAdminButton.style.display = "block"; 
-        } else { 
-            if (isAdminButton) isAdminButton.style.display = "none"; 
-        }; 
-    }); 
-}
-
-function createNewAccountInTabs() { console.log("Account created"); };
-function createNewPresetInTabs() { console.log("Preset created"); };
 </script>
 
 </body>
