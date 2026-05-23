@@ -123,6 +123,33 @@
             gap: 15px;
         }
 
+        /* КНОПКИ LOGIN / LOGOUT */
+        .auth-action-btn {
+            background: #141414;
+            color: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .auth-action-btn:hover {
+            background: #ff3b30;
+            color: #fff;
+            border-color: #ff3b30;
+        }
+        .login-trigger-btn {
+            background: var(--accent-yellow);
+            color: #000;
+            border: none;
+        }
+        .login-trigger-btn:hover {
+            background: #cbf002;
+            color: #000;
+        }
+
         /* ПОИСК */
         .search-wrapper { position: relative; }
         .search-btn {
@@ -341,6 +368,7 @@
                     <div id="search-results-container" class="search-results"></div>
                 </div>
             </div>
+            <button id="auth-state-btn" class="auth-action-btn" onclick="handleAuthAction()">Logout</button>
         </div>
     </header>
 
@@ -446,15 +474,45 @@ let currentSelectedAccount = "мой акк";
 let currentSelectedPreset = "Roster";
 
 auth.onAuthStateChanged(function(user) { 
+    const authBtn = document.getElementById("auth-state-btn");
     if (user) { 
         currentLoggedUid = user.uid; 
         viewTargetUid = user.uid; 
+        
+        if(authBtn) {
+            authBtn.innerText = "Logout";
+            authBtn.classList.remove("login-trigger-btn");
+        }
         initUserStructureInDB(user.uid);
     } else { 
+        currentLoggedUid = null;
+        viewTargetUid = null;
         document.getElementById("profile-display-name").innerText = "Guest Mode"; 
         document.getElementById("sub-name-label").innerText = "Offline";
+        
+        if(authBtn) {
+            authBtn.innerText = "Login";
+            authBtn.classList.add("login-trigger-btn");
+        }
+        
+        // Рендерим пустые дефолтные вкладки для режима просмотра без логина
+        renderAccountTabs({"мой акк": {}});
+        renderPresetTabs({"Roster": {}});
     }
 });
+
+// Клик по кнопке входа/выхода
+function handleAuthAction() {
+    if (currentLoggedUid) {
+        // Если залогинен — разлогиниваем
+        auth.signOut().then(() => {
+            window.location.reload();
+        }).catch(err => console.error(err));
+    } else {
+        // Если разлогинен — перекидываем обратно на твою страницу авторизации index.html или регистрацию
+        window.location.href = "index.html"; 
+    }
+}
 
 function initUserStructureInDB(uid) {
     const userRef = db.ref("users/" + uid);
@@ -483,7 +541,6 @@ function loadHeaderAndProfileData(uid, isItMe) {
     const backBtn = document.getElementById("back-self-btn");
     if(backBtn) { backBtn.style.display = isItMe ? "none" : "inline-block"; }
 
-    // Заменено на .once(), чтобы при записи новых табов данные не сбрасывались принудительно
     db.ref("users/" + uid).once("value").then(function(snapshot) { 
         const data = snapshot.val(); 
         if (data) { 
@@ -518,7 +575,9 @@ function renderAccountTabs(accountsObj) {
         div.onclick = function() {
             currentSelectedAccount = accName;
             currentSelectedPreset = "Roster"; 
-            loadHeaderAndProfileData(viewTargetUid, viewTargetUid === currentLoggedUid);
+            if(viewTargetUid) {
+                loadHeaderAndProfileData(viewTargetUid, viewTargetUid === currentLoggedUid);
+            }
         };
         container.appendChild(div);
     });
@@ -539,7 +598,9 @@ function renderPresetTabs(presetsObj) {
         div.textContent = presetName;
         div.onclick = function() {
             currentSelectedPreset = presetName;
-            loadHeaderAndProfileData(viewTargetUid, viewTargetUid === currentLoggedUid);
+            if(viewTargetUid) {
+                loadHeaderAndProfileData(viewTargetUid, viewTargetUid === currentLoggedUid);
+            }
         };
         container.appendChild(div);
     });
@@ -576,8 +637,8 @@ function updateWorkspaceDOM(accountData) {
     }
 }
 
-/* ИСПРАВЛЕННОЕ СОЗДАНИЕ ПРОФИЛЕЙ И ПРЕСЕТОВ */
 function createNewAccountNode() {
+    if(!currentLoggedUid) return alert("Please log in first!");
     if(viewTargetUid !== currentLoggedUid) return alert("You can customize only your own profile!");
     
     const name = prompt("Enter new Account name:");
@@ -594,11 +655,12 @@ function createNewAccountNode() {
     }).then(() => {
         currentSelectedAccount = name;
         currentSelectedPreset = "Roster";
-        loadHeaderAndProfileData(currentLoggedUid, true); // Ручной рендер новых вкладок
+        loadHeaderAndProfileData(currentLoggedUid, true);
     });
 }
 
 function createNewPresetNode() {
+    if(!currentLoggedUid) return alert("Please log in first!");
     if(viewTargetUid !== currentLoggedUid) return alert("You can customize only your own profile!");
     
     const name = prompt("Enter new Preset name:");
@@ -610,11 +672,12 @@ function createNewPresetNode() {
         enginesHtml: "Preset " + name + " engines are offline."
     }).then(() => {
         currentSelectedPreset = name;
-        loadHeaderAndProfileData(currentLoggedUid, true); // Ручной рендер новых вкладок
+        loadHeaderAndProfileData(currentLoggedUid, true);
     });
 }
 
 function deleteCurrentSelectedTab() {
+    if(!currentLoggedUid) return alert("Please log in first!");
     if(viewTargetUid !== currentLoggedUid) return alert("Action denied!");
     
     if(currentSelectedPreset !== "Roster") {
@@ -650,13 +713,11 @@ function toggleSearchDropdown() {
     drop.style.display = drop.style.display === "block" ? "none" : "block";
 }
 
-/* ИСПРАВЛЕННЫЙ КЛИЕНТСКИЙ ПОИСК (РАБОТАЕТ БЕЗ ИНДЕКСОВ FIREBASE RULES) */
 function searchUserInDB() {
     const query = document.getElementById("search-input").value.trim().toLowerCase();
     const container = document.getElementById("search-results-container");
     if(!query) { container.innerHTML = ""; return; }
 
-    // Сканируем всю ветку users и фильтруем совпадения без ошибок бд
     db.ref("users").once("value").then(snapshot => {
         container.innerHTML = "";
         if(!snapshot.exists()) {
