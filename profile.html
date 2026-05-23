@@ -27,7 +27,7 @@
             overflow-x: hidden;
         }
 
-        /* БОКОВОЕ МЕНЮ (КОПИЯ ФОТО 1) */
+        /* БОКОВОЕ МЕНЮ */
         .sidebar {
             width: 220px;
             background-color: var(--bg-sidebar);
@@ -155,6 +155,7 @@
             margin-bottom: 6px;
             outline: none;
         }
+        .search-dropdown input:focus { border-color: var(--accent-yellow); }
         .search-results { max-height: 180px; overflow-y: auto; }
         .search-row {
             display: flex;
@@ -181,7 +182,7 @@
         .screen-content { display: none; }
         .screen-content.active-screen { display: block; }
 
-        /* ВЕРХНЯЯ ПАНЕЛЬ ТАБОВ (КОПИЯ С ФОТО 1) */
+        /* ВЕРХНЯЯ ПАНЕЛЬ ТАБОВ */
         .tabs-wrapper-block {
             background: #121212;
             border-radius: 14px;
@@ -353,19 +354,16 @@
     </div>
 
     <div id="screen-profile" class="screen-content active-screen">
-        
         <div class="tabs-wrapper-block">
             <div class="tabs-inner-row">
                 <div class="tabs-side-label">// Accounts</div>
-                <div id="account-tabs-container" class="tabs-list-items">
-                    </div>
+                <div id="account-tabs-container" class="tabs-list-items"></div>
                 <button class="plus-action-btn" onclick="createNewAccountNode()">+</button>
             </div>
             
             <div class="tabs-inner-row">
                 <div class="tabs-side-label">// Presets</div>
-                <div id="preset-tabs-container" class="tabs-list-items">
-                    </div>
+                <div id="preset-tabs-container" class="tabs-list-items"></div>
                 <button class="plus-action-btn" onclick="createNewPresetNode()">+</button>
             </div>
         </div>
@@ -424,11 +422,9 @@
             <p>Platform system updates and patchlogs.</p>
         </div>
     </div>
-
 </div>
 
 <script>
-// Твой Firebase конфиг
 const firebaseConfig = { 
     apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx_JXcTP4", 
     authDomain: "nte-tournaments.firebaseapp.com", 
@@ -449,7 +445,6 @@ let viewTargetUid = null;
 let currentSelectedAccount = "мой акк"; 
 let currentSelectedPreset = "Roster";
 
-// Отслеживание авторизации
 auth.onAuthStateChanged(function(user) { 
     if (user) { 
         currentLoggedUid = user.uid; 
@@ -461,12 +456,10 @@ auth.onAuthStateChanged(function(user) {
     }
 });
 
-// Проверяем наличие дефолтных табов в базе, чтобы не было пусто при первом входе
 function initUserStructureInDB(uid) {
     const userRef = db.ref("users/" + uid);
     userRef.once("value").then(snapshot => {
         if (!snapshot.exists()) {
-            // Если юзер новый — создаем базовую структуру без мусора
             userRef.set({
                 username: "User_" + uid.substring(0, 5),
                 accounts: {
@@ -486,30 +479,27 @@ function initUserStructureInDB(uid) {
     });
 }
 
-/* СИНХРОННЫЙ ВЫВОД ИМЕНИ И ТАБОВ ИЗ FIREBASE */
 function loadHeaderAndProfileData(uid, isItMe) { 
     const backBtn = document.getElementById("back-self-btn");
     if(backBtn) { backBtn.style.display = isItMe ? "none" : "inline-block"; }
 
-    db.ref("users/" + uid).on("value", function(snapshot) { 
+    // Заменено на .once(), чтобы при записи новых табов данные не сбрасывались принудительно
+    db.ref("users/" + uid).once("value").then(function(snapshot) { 
         const data = snapshot.val(); 
         if (data) { 
             document.getElementById("profile-display-name").innerText = data.username || "unknown"; 
             document.getElementById("sub-name-label").innerText = "id: " + uid.substring(0,8); 
             
-            // Строим списки табов прямо из веток БД
             renderAccountTabs(data.accounts || {});
             
             const currentAccData = data.accounts ? data.accounts[currentSelectedAccount] : null;
             renderPresetTabs(currentAccData ? currentAccData.presets : {});
             
-            // Выводим контент в рабочую область
             updateWorkspaceDOM(currentAccData);
         }
     }); 
 }
 
-/* ОТРИСОВКА ДИНАМИЧЕСКИХ ТАБОВ ACCOUNTS */
 function renderAccountTabs(accountsObj) {
     const container = document.getElementById("account-tabs-container");
     container.innerHTML = "";
@@ -517,7 +507,6 @@ function renderAccountTabs(accountsObj) {
     let keys = Object.keys(accountsObj);
     if(keys.length === 0) return;
 
-    // Проверка на валидность выбранного таба
     if(!accountsObj[currentSelectedAccount]) {
         currentSelectedAccount = keys[0];
     }
@@ -528,27 +517,21 @@ function renderAccountTabs(accountsObj) {
         div.textContent = accName;
         div.onclick = function() {
             currentSelectedAccount = accName;
-            currentSelectedPreset = "Roster"; // Сброс на дефолт при смене акка
+            currentSelectedPreset = "Roster"; 
             loadHeaderAndProfileData(viewTargetUid, viewTargetUid === currentLoggedUid);
         };
         container.appendChild(div);
     });
 }
 
-/* ОТРИСОВКА ДИНАМИЧЕСКИХ ТАБОВ PRESETS */
 function renderPresetTabs(presetsObj) {
     const container = document.getElementById("preset-tabs-container");
     container.innerHTML = "";
     
     let keys = presetsObj ? Object.keys(presetsObj) : [];
     
-    // Если в ветке пусто — всегда выводим системный Roster
-    if(!keys.includes("Roster")) {
-        keys.unshift("Roster");
-    }
-    if(!keys.includes(currentSelectedPreset)) {
-        currentSelectedPreset = "Roster";
-    }
+    if(!keys.includes("Roster")) { keys.unshift("Roster"); }
+    if(!keys.includes(currentSelectedPreset)) { currentSelectedPreset = "Roster"; }
 
     keys.forEach(presetName => {
         const div = document.createElement("div");
@@ -562,7 +545,6 @@ function renderPresetTabs(presetsObj) {
     });
 }
 
-/* ОБНОВЛЕНИЕ ТЕКСТА И ЗАГОЛОВКОВ */
 function updateWorkspaceDOM(accountData) {
     const mainTitle = document.getElementById("workspace-dynamic-title");
     if (mainTitle) mainTitle.textContent = currentSelectedAccount;
@@ -594,12 +576,12 @@ function updateWorkspaceDOM(accountData) {
     }
 }
 
-/* ДОБАВЛЕНИЕ НОВЫХ СУБ-ЭЛЕМЕНТОВ ЧЕРЕЗ ПЛЮСИК */
+/* ИСПРАВЛЕННОЕ СОЗДАНИЕ ПРОФИЛЕЙ И ПРЕСЕТОВ */
 function createNewAccountNode() {
     if(viewTargetUid !== currentLoggedUid) return alert("You can customize only your own profile!");
     
     const name = prompt("Enter new Account name:");
-    if(!name) return;
+    if(!name || name.trim() === "") return;
     
     const path = "users/" + currentLoggedUid + "/accounts/" + name;
     db.ref(path).set({
@@ -612,6 +594,7 @@ function createNewAccountNode() {
     }).then(() => {
         currentSelectedAccount = name;
         currentSelectedPreset = "Roster";
+        loadHeaderAndProfileData(currentLoggedUid, true); // Ручной рендер новых вкладок
     });
 }
 
@@ -619,7 +602,7 @@ function createNewPresetNode() {
     if(viewTargetUid !== currentLoggedUid) return alert("You can customize only your own profile!");
     
     const name = prompt("Enter new Preset name:");
-    if(!name) return;
+    if(!name || name.trim() === "") return;
     
     const path = "users/" + currentLoggedUid + "/accounts/" + currentSelectedAccount + "/presets/" + name;
     db.ref(path).set({
@@ -627,29 +610,32 @@ function createNewPresetNode() {
         enginesHtml: "Preset " + name + " engines are offline."
     }).then(() => {
         currentSelectedPreset = name;
+        loadHeaderAndProfileData(currentLoggedUid, true); // Ручной рендер новых вкладок
     });
 }
 
-/* УДАЛЕНИЕ ВЫБРАННОЙ ВКЛАДКИ ЧЕРЕЗ КОРЗИНУ */
 function deleteCurrentSelectedTab() {
     if(viewTargetUid !== currentLoggedUid) return alert("Action denied!");
     
-    // Если выбран сторонний пресет — удаляем пресет
     if(currentSelectedPreset !== "Roster") {
         if(confirm("Delete preset '" + currentSelectedPreset + "'?")) {
             db.ref("users/" + currentLoggedUid + "/accounts/" + currentSelectedAccount + "/presets/" + currentSelectedPreset).remove()
-            .then(() => { currentSelectedPreset = "Roster"; });
+            .then(() => { 
+                currentSelectedPreset = "Roster"; 
+                loadHeaderAndProfileData(currentLoggedUid, true);
+            });
         }
     } else {
-        // Иначе удаляем весь аккаунт целиком
         if(currentSelectedAccount === "мой акк") return alert("You cannot delete your main account tab!");
         if(confirm("Delete account '" + currentSelectedAccount + "' entirely?")) {
-            db.ref("users/" + currentLoggedUid + "/accounts/" + currentSelectedAccount).remove();
+            db.ref("users/" + currentLoggedUid + "/accounts/" + currentSelectedAccount).remove().then(() => {
+                currentSelectedAccount = "мой акк";
+                loadHeaderAndProfileData(currentLoggedUid, true);
+            });
         }
     }
 }
 
-/* ПЕРЕКЛЮЧЕНИЕ СТРАНИЦ МЕНЮ */
 function switchMainScreen(screenName, btnElement) {
     document.querySelectorAll(".sidebar-btn").forEach(btn => btn.classList.remove("active"));
     btnElement.classList.add("active");
@@ -659,35 +645,48 @@ function switchMainScreen(screenName, btnElement) {
     if(target) target.classList.add("active-screen");
 }
 
-/* СИСТЕМНЫЙ ПОИСК ИГРОКОВ */
 function toggleSearchDropdown() {
     const drop = document.getElementById("search-dropdown");
     drop.style.display = drop.style.display === "block" ? "none" : "block";
 }
 
+/* ИСПРАВЛЕННЫЙ КЛИЕНТСКИЙ ПОИСК (РАБОТАЕТ БЕЗ ИНДЕКСОВ FIREBASE RULES) */
 function searchUserInDB() {
-    const query = document.getElementById("search-input").value.trim();
+    const query = document.getElementById("search-input").value.trim().toLowerCase();
     const container = document.getElementById("search-results-container");
     if(!query) { container.innerHTML = ""; return; }
 
-    db.ref("users").orderByChild("username").equalTo(query).once("value").then(snapshot => {
+    // Сканируем всю ветку users и фильтруем совпадения без ошибок бд
+    db.ref("users").once("value").then(snapshot => {
         container.innerHTML = "";
         if(!snapshot.exists()) {
             container.innerHTML = "<div style='padding:8px;color:#555;'>Not found</div>";
             return;
         }
+        
+        let found = false;
         snapshot.forEach(child => {
-            const row = document.createElement("div");
-            row.className = "search-row";
-            row.innerHTML = `<span>${child.val().username}</span><span style='color:var(--accent-yellow)'>View &rarr;</span>`;
-            row.onclick = function() {
-                viewTargetUid = child.key;
-                switchMainScreen('profile', document.getElementById("menu-btn-profile"));
-                loadHeaderAndProfileData(child.key, false);
-                document.getElementById("search-dropdown").style.display = "none";
-            };
-            container.appendChild(row);
+            const userData = child.val();
+            const username = userData.username ? userData.username.toLowerCase() : "";
+            
+            if(username.includes(query)) {
+                found = true;
+                const row = document.createElement("div");
+                row.className = "search-row";
+                row.innerHTML = `<span>${userData.username}</span><span style='color:var(--accent-yellow)'>View &rarr;</span>`;
+                row.onclick = function() {
+                    viewTargetUid = child.key;
+                    switchMainScreen('profile', document.getElementById("menu-btn-profile"));
+                    loadHeaderAndProfileData(child.key, false);
+                    document.getElementById("search-dropdown").style.display = "none";
+                };
+                container.appendChild(row);
+            }
         });
+
+        if(!found) {
+            container.innerHTML = "<div style='padding:8px;color:#555;'>Not found</div>";
+        }
     });
 }
 
