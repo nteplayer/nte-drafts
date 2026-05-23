@@ -2,36 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SHIYU OUP - PROFILE</title>
-    <style>
-        body { background: #0a0a0a; color: #fff; font-family: sans-serif; padding: 20px; }
-        .tab { display: inline-block; padding: 10px 20px; background: #1a1a1a; margin-right: 10px; border-radius: 20px; cursor: pointer; }
-        .tab.active { background: #e5fe02; color: #000; }
-        .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 12px; margin-top: 20px; }
-    </style>
+    <title>SHIYU OUP PANEL - PROFILE</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-<h1 id="user">Loading...</h1>
-<div id="tabs"></div>
-<div id="content" class="card"></div>
+
+<div id="account-container"></div>
+<div id="roster-container"></div>
 
 <script>
-// (Скопируй сюда тот же firebaseConfig из index.html)
-firebase.initializeApp({/*...копируй конфиг...*/});
+const firebaseConfig = { /* ВСТАВЬ СЮДА СВОЙ РАБОЧИЙ КОНФИГ */ };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
 firebase.auth().onAuthStateChanged(user => {
-    if(!user) return window.location.href = "index.html";
-    firebase.database().ref("users/" + user.uid).on("value", snap => {
-        const d = snap.val();
-        document.getElementById("user").innerText = d.username;
-        Object.keys(d.accounts).forEach(k => {
-            const t = document.createElement("div");
-            t.className = "tab active"; t.innerText = d.accounts[k].name;
-            document.getElementById("tabs").appendChild(t);
-            document.getElementById("content").innerHTML = `<h3>${d.accounts[k].name}</h3><p>Agents: ${d.accounts[k].agents}</p><p>Engines: ${d.accounts[k].engines}</p>`;
-        });
+    if (!user) return window.location.href = "index.html";
+    
+    db.ref("users/" + user.uid).on("value", snapshot => {
+        const userData = snapshot.val();
+        if (!userData) return;
+
+        // ЛОГИКА РЕНДЕРИНГА ВЕТКИ ACCOUNTS
+        const accContainer = document.getElementById("account-container");
+        accContainer.innerHTML = ""; // Очистка
+        
+        if (userData.accounts) {
+            Object.keys(userData.accounts).forEach(accId => {
+                const acc = userData.accounts[accId];
+                // Создаем элементы вкладок и контента
+                const tab = document.createElement("div");
+                tab.innerText = acc.name || "Account";
+                // ... (тут твоя логика создания кнопок управления агентами/движками)
+                accContainer.appendChild(tab);
+            });
+        }
     });
 });
 </script>
