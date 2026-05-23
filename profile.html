@@ -1,6 +1,5 @@
-// Конфигурация Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx__JXcTP4", 
+    apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx_JXcTP4",
     authDomain: "nte-tournaments.firebaseapp.com",
     databaseURL: "https://nte-tournaments-default-rtdb.firebaseio.com",
     projectId: "nte-tournaments",
@@ -9,54 +8,45 @@ const firebaseConfig = {
     appId: "1:1022034023092:web:d269068348b24abed93de1"
 };
 
-// Инициализация
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const auth = firebase.auth();
 const db = firebase.database();
-
 let currentLoggedUid = null;
 
-// ИСПРАВЛЕННАЯ СЛУЖБА АВТОРИЗАЦИИ
 auth.onAuthStateChanged(user => {
     if (user) {
-        console.log("Пользователь успешно авторизован в Firebase Auth. UID:", user.uid);
+        console.log("User authorized in Auth. UID:", user.uid);
         currentLoggedUid = user.uid;
 
-        // Проверяем, существует ли этот пользователь в Realtime Database в ветке users
         db.ref('users/' + user.uid).once('value').then(snapshot => {
             if (!snapshot.exists()) {
-                console.warn(`Ветка users/${user.uid} не найдена. Создаем профиль по умолчанию...`);
-                
-                // Автоматически создаем запись, чтобы profile.html не падал из-за отсутствия данных
+                console.warn("User branch not found. Creating default...");
                 db.ref('users/' + user.uid).set({
-                    username: "dima_rusin", // Твой никнейм по умолчанию
+                    username: "dima_rusin",
                     email: user.email || "no-email"
                 }).then(() => {
-                    console.log("Дефолтный профиль успешно создан в базе данных.");
+                    console.log("Profile created successfully.");
                     loadUserProfileData(user.uid, true);
                 }).catch(dbErr => {
-                    console.error("Не удалось автоматически создать ветку пользователя в БД:", dbErr);
+                    console.error("DB Write Error:", dbErr);
                     loadUserProfileData(user.uid, true);
                 });
             } else {
-                console.log("Данные пользователя найдены в БД. Загружаем профиль...");
+                console.log("User data found in DB.");
                 loadUserProfileData(user.uid, true);
             }
         }).catch(err => {
-            console.error("Ошибка при чтении ветки users из БД:", err);
-            // Даже если база данных вернула ошибку, пытаемся отобразить интерфейс, а не выкидываем
+            console.error("DB Read Error:", err);
             loadUserProfileData(user.uid, true);
         });
-
     } else {
-        console.warn("Пользователь не авторизован (Auth State: null). Перенаправление на index.html");
+        console.warn("No user session found. Redirecting to index...");
         window.location.href = 'index.html';
     }
 });
 
-// ИСПРАВЛЕННАЯ ЗАГРУЗКА ДАННЫХ
 function loadUserProfileData(uid, isItMe) {
     if (isItMe) {
         document.getElementById('back-self-btn').style.display = 'none';
@@ -67,44 +57,39 @@ function loadUserProfileData(uid, isItMe) {
     db.ref('users/' + uid).once('value').then(snapshot => {
         const data = snapshot.val();
         if (data) {
-            console.log(`Данные профиля для UID ${uid} успешно загружены:`, data);
+            console.log("Loaded profile data:", data);
             document.getElementById('profile-display-name').innerText = data.username || "unknown";
             document.getElementById('sub-name-label').innerText = data.username || "unknown";
             
-            // Проверка админки срабатывает ТОЛЬКО для текущего вошедшего юзера и если у него есть никнейм
             if (isItMe && data.username) {
                 checkAdminStatus(data.username);
             }
         } else {
-            console.warn(`Ветка users/${uid} вернула пустое значение (null).`);
+            console.warn("User branch returned null.");
             document.getElementById('profile-display-name').innerText = "New User";
             document.getElementById('sub-name-label').innerText = "id: " + uid;
         }
     }).catch(err => {
-        console.error(`Критическая ошибка при загрузке loadUserProfileData для UID ${uid}:`, err);
+        console.error("Critical error inside loadUserProfileData:", err);
     });
 }
 
-// ФУНКЦИЯ ПРОВЕРКИ СТАТУСА АДМИНА ПО НИКНЕЙМУ
 function checkAdminStatus(username) {
-    console.log(`Запрос на проверку прав администратора для никнейма: ${username}`);
-    
+    console.log("Checking admin status for:", username);
     db.ref('admins/' + username).once('value').then(snapshot => {
         const isAdminButton = document.getElementById('admin-panel-btn');
-        
         if (snapshot.exists() && snapshot.val() === true) {
-            console.log(`Права подтверждены! Никнейм ${username} найден в списке admins со значением true.`);
+            console.log("Access granted for admin!");
             if (isAdminButton) isAdminButton.style.display = 'block'; 
         } else {
-            console.log(`Доступ к админ-панели скрыт. Никнейм ${username} отсутствует в списке admins или значение не равно true.`);
+            console.log("Access denied. Standard account.");
             if (isAdminButton) isAdminButton.style.display = 'none';  
         }
     }).catch(err => {
-        console.error("Ошибка при обращении к ветке /admins/ в Realtime Database:", err);
+        console.error("Error accessing /admins/ node:", err);
     });
 }
 
-// ОСТАЛЬНОЙ ФУНКЦИОНАЛ ПОИСКА И ПЕРЕКЛЮЧЕНИЯ ВКЛАДОК (БЕЗ ИЗМЕНЕНИЙ)
 function toggleSearchDropdown() {
     const drop = document.getElementById('search-dropdown');
     drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
@@ -113,7 +98,6 @@ function toggleSearchDropdown() {
 function searchUserInDB() {
     const query = document.getElementById('search-input').value.trim();
     const resContainer = document.getElementById('search-results-container');
-    
     if (!query) return;
 
     db.ref('users').orderByChild('username').equalTo(query).once('value').then(snapshot => {
@@ -158,7 +142,6 @@ function switchAccountTab(element) {
     element.classList.add('active');
 }
 
-// Отредактировано под стили Shiyu Cup
 function switchPresetTab(type, element) {
     const tabs = document.querySelectorAll('#preset-tabs-container .tab-item');
     tabs.forEach(t => t.classList.remove('active'));
@@ -170,17 +153,17 @@ function switchPresetTab(type, element) {
     const actionBtn = document.getElementById('main-action-node-btn');
 
     if (type === 'roster') {
-        mainTitle.innerHTML = `мой акк <button class="edit-icon">✏️</button>`;
+        mainTitle.innerHTML = 'мой акк <button class="edit-icon">✏️</button>';
         agentsLabel.innerText = 'Account agents';
         enginesLabel.innerText = 'Account engines';
         actionBtn.innerText = 'Manage agents';
     } else if (type === 'preset1') {
-        mainTitle.innerHTML = `Preset 1 <button class="edit-icon">✏️</button>`;
+        mainTitle.innerHTML = 'Preset 1 <button class="edit-icon">✏️</button>';
         agentsLabel.innerText = 'Preset agents';
         enginesLabel.innerText = 'Preset engines';
         actionBtn.innerText = 'Manage preset';
     } else if (type === 'preset2') {
-        mainTitle.innerHTML = `Preset 2 <button class="edit-icon">✏️</button>`;
+        mainTitle.innerHTML = 'Preset 2 <button class="edit-icon">✏️</button>';
         agentsLabel.innerText = 'Preset agents';
         enginesLabel.innerText = 'Preset engines';
         actionBtn.innerText = 'Manage preset';
