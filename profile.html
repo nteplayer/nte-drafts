@@ -2,13 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SHIYU OUP PANEL - PROFILE</title>
+    <style>
+        body { background-color: #0a0a0a; color: #fff; font-family: sans-serif; padding: 40px; }
+        .guest-badge { display: none; background: #e5fe0220; border: 1px solid #e5fe02; color: #e5fe02; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .data-card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 12px; }
+    </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
+
+<div id="guest-badge-status" class="guest-badge">Guest Mode</div>
+
+<h1 id="profile-name">Loading...</h1>
+<div class="data-card">
+    <p>Активные аккаунты: <span id="account-status">Загрузка...</span></p>
+</div>
 
 <script>
 const firebaseConfig = { 
@@ -25,23 +36,16 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 auth.onAuthStateChanged(function(user) {
-    // Находим плашку гостевого режима (если она есть в твоей верстке)
-    const guestBadge = document.querySelector(".guest-badge");
-    
     if (user) {
-        // Если пользователь залогинен, просто прячем плашку гостя
-        if (guestBadge) guestBadge.style.display = "none";
-        
-        // Загружаем данные профиля (тихо, без лишних сообщений на экран)
+        document.getElementById("guest-badge-status").style.display = "none";
         db.ref("users/" + user.uid).once("value").then(function(snapshot) {
             const data = snapshot.val();
-            if (data) {
-                // Тут твой код заполнения полей профиля данными (username и т.д.)
-            }
+            document.getElementById("profile-name").innerText = data ? "Привет, " + data.username : "Привет, Игрок";
+            document.getElementById("account-status").innerText = data && data.accounts ? "Аккаунты найдены" : "Нет активных аккаунтов";
         });
     } else {
-        // Если не залогинен, показываем плашку гостя
-        if (guestBadge) guestBadge.style.display = "block";
+        document.getElementById("guest-badge-status").style.display = "block";
+        document.getElementById("profile-name").innerText = "Гостевой режим";
     }
 });
 </script>
