@@ -25,6 +25,28 @@ body {
     width: 100%;
 }
 
+/* АВТОРИЗАЦИЯ (ЦЕНТРИРОВАННЫЙ БЛОК ДЛЯ INDEX.HTML) */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.auth-card {
+    background-color: var(--bg-sidebar);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
 /* ВЕРТИКАЛЬНЫЙ САЙДБАР (СЛЕВА) */
 .sidebar {
     width: 260px;
@@ -74,6 +96,17 @@ body {
     background-color: var(--accent-lime);
     color: #000000;
     font-weight: 700;
+}
+
+/* Кнопка выхода внизу сайдбара */
+.sidebar-logout {
+    margin-top: auto;
+    background: transparent !important;
+    border: 1px solid rgba(255, 77, 77, 0.2) !important;
+    color: #ff4d4d !important;
+}
+.sidebar-logout:hover {
+    background: rgba(255, 77, 77, 0.1) !important;
 }
 
 /* ОСНОВНОЙ КОНТЕНТ (СПРАВА) */
@@ -138,9 +171,50 @@ button {
 }
 button:hover { opacity: 0.9; }
 
-/* ТАБЛИЦЫ ТУРНИРОВ */
+/* ТАБЛИЦЫ */
 .tournament-table {
     width: 100%;
     border-collapse: collapse;
 }
-.tournament-table th, .tournament
+.tournament-table th, .tournament-table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+.tournament-table th {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+/* СЕТКА АГЕНТОВ */
+.agents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    margin-top: 20px;
+}
+.agent-slot {
+    aspect-ratio: 1;
+    background-color: #242836;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+/* Переключатель форм */
+.auth-toggle {
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+.auth-toggle span {
+    color: var(--accent-lime);
+    cursor: pointer;
+    text-decoration: underline;
+}
