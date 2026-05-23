@@ -1,53 +1,27 @@
-// Сюда вставляешь ТОЛЬКО блок конфигурации из Project Settings
+// Конфигурация Firebase — Сюда нужно вставить твои данные из Firebase Console!
 const firebaseConfig = {
-    apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx__JXcTP4",
+    apiKey: "ТВОЙ_API_KEY",
     authDomain: "nte-tournaments-7b0e3.firebaseapp.com",
     databaseURL: "https://nte-tournaments-7b0e3-default-rtdb.firebaseio.com",
     projectId: "nte-tournaments-7b0e3",
-    storageBucket: "nte-tournaments-7b0e3.firebasestorage.app",
-    messagingSenderId: "1022034023092",
-    appId: "1:1022034023092:web:d269068348b24abed93de1"
+    storageBucket: "nte-tournaments-7b0e3.appspot.com",
+    messagingSenderId: "ТВОЙ_SENDER_ID",
+    appId: "ТВОЙ_APP_ID"
 };
 
-// Инициализация строго в старом стиле v8 для работы в браузере:
-firebase.initializeApp(firebaseConfig);
+// Инициализация Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
 const auth = firebase.auth();
 const db = firebase.database();
 
-// Список никнеймов с админ-правами (Пункт 4)
-const ADMIN_NICKNAMES = ["AdminNick", "Dmitriy", "HostNTE"]; 
-
-function handleSignUp() {
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-    const username = document.getElementById('auth-username').value.trim();
-
-    if(!email || !password || !username) return alert('Please fill all fields');
-
-    auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            const isCostMaker = ADMIN_NICKNAMES.includes(username);
-            
-            db.ref('users/' + user.uid).set({
-                username: username,
-                email: email,
-                isCostMaker: isCostMaker
-            }).then(() => {
-                alert('Account created successfully!');
-                window.location.href = 'dashboard.html';
-            });
-        })
-        .catch(error => alert(error.message)); // Если что-то не так, покажет окно с ошибкой
-}
-
-function handleLogin() {
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-
-    auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-            window.location.href = 'dashboard.html';
-        })
-        .catch(error => alert(error.message));
+// Общая функция для выхода из аккаунта
+function logout() {
+    auth.signOut().then(() => {
+        window.location.href = 'index.html';
+    }).catch((error) => {
+        alert(error.message);
+    });
 }
