@@ -238,7 +238,10 @@ const firebaseConfig = {
     appId: "1:1022034023092:web:d269068348b24abed93de1" 
 };
 
-if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); };
+// Безопасная инициализация без дублирования
+if (!firebase.apps.length) { 
+    firebase.initializeApp(firebaseConfig); 
+}
 const auth = firebase.auth();
 const db = firebase.database();
 
@@ -248,6 +251,7 @@ function redirectToMain() {
     window.location.href = "profile.html";
 }
 
+// Переключение Вход / Регистрация
 function toggleAuthMode(signUp) {
     isSignUpMode = signUp;
     const title = document.getElementById("auth-title");
@@ -257,7 +261,7 @@ function toggleAuthMode(signUp) {
     const switchText = document.getElementById("switch-text");
     const errorBox = document.getElementById("error-box");
     
-    errorBox.style.display = "none";
+    if(errorBox) errorBox.style.display = "none";
 
     if (isSignUpMode) {
         title.innerText = "Create Account";
@@ -276,23 +280,22 @@ function toggleAuthMode(signUp) {
     }
 }
 
+// Отправка формы
 function handleAuthSubmit(event) {
     event.preventDefault();
     const email = document.getElementById("auth-email").value.trim();
     const password = document.getElementById("auth-password").value;
     const errorBox = document.getElementById("error-box");
     
-    errorBox.style.display = "none";
+    if(errorBox) errorBox.style.display = "none";
 
     if (isSignUpMode) {
-        // РЕГИСТРАЦИЯ
         const username = document.getElementById("reg-username").value.trim();
         if(!username) return;
 
         auth.createUserWithEmailAndPassword(email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                // Сначала создаем запись в БД
                 return db.ref("users/" + user.uid).set({
                     username: username,
                     accounts: {
@@ -308,22 +311,24 @@ function handleAuthSubmit(event) {
                 });
             })
             .then(() => {
-                // Только после успешной записи принудительно редиректим
                 window.location.replace("profile.html");
             })
             .catch((error) => {
-                errorBox.innerText = error.message;
-                errorBox.style.display = "block";
+                if(errorBox) {
+                    errorBox.innerText = error.message;
+                    errorBox.style.display = "block";
+                }
             });
     } else {
-        // ВХОД
         auth.signInWithEmailAndPassword(email, password)
             .then(() => {
                 window.location.replace("profile.html");
             })
             .catch((error) => {
-                errorBox.innerText = error.message;
-                errorBox.style.display = "block";
+                if(errorBox) {
+                    errorBox.innerText = error.message;
+                    errorBox.style.display = "block";
+                }
             });
     }
 }
