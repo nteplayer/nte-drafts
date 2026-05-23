@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>NTE - Dashboard</title>
+    <title>ShiyuCup - Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -17,6 +17,7 @@
             <a href="profile.html">Profile</a>
             <a href="draft.html">Drafts</a>
             <a href="tournaments.html">Tournaments</a>
+            <button class="sidebar-logout" onclick="logout()">Logout</button>
         </aside>
 
         <main class="main-content">
@@ -72,7 +73,6 @@
             const s1 = parseInt(document.getElementById('slot1').value);
             const s2 = parseInt(document.getElementById('slot2').value);
             const s3 = parseInt(document.getElementById('slot3').value);
-            // Простейшая калькуляция (можно изменить под реальные косты персонажей)
             document.getElementById('total-cost').innerText = s1 + s2 + s3;
         }
 
