@@ -1,53 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>SHIYU OUP - LOGIN</title>
-    <style>
-        body { background: #0a0a0a; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .auth-card { background: #111; padding: 40px; border-radius: 16px; width: 350px; border: 1px solid #222; }
-        input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; margin: 10px 0; border-radius: 8px; }
-        button { width: 100%; padding: 12px; background: #e5fe02; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; }
-    </style>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-</head>
-<body>
-<div class="auth-card">
-    <h2 id="title">Sign In</h2>
-    <input type="text" id="username" placeholder="Username" style="display:none;">
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="pass" placeholder="Password">
-    <button id="btn" onclick="auth()">Login</button>
-    <p onclick="toggle()" style="cursor:pointer; text-align:center;">Switch Mode</p>
-</div>
 <script>
-const firebaseConfig = { 
-    apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx__JXcTP4", 
-    authDomain: "nte-tournaments.firebaseapp.com", 
-    databaseURL: "https://nte-tournaments-7b0e3-default-rtdb.firebaseio.com", 
-    projectId: "nte-tournaments", 
-    storageBucket: "nte-tournaments.appspot.com", 
-    messagingSenderId: "1022034023092", 
-    appId: "1:1022034023092:web:d269068348b24abed93de1" 
-};
-firebase.initializeApp(firebaseConfig);
-let isUp = false;
-function toggle() { isUp = !isUp; document.getElementById("username").style.display = isUp ? "block" : "none"; document.getElementById("title").innerText = isUp ? "Sign Up" : "Sign In"; }
-function auth() {
-    const e = document.getElementById("email").value, p = document.getElementById("pass").value;
-    if(isUp) {
-        firebase.auth().createUserWithEmailAndPassword(e, p).then(res => {
-            firebase.database().ref("users/" + res.user.uid).set({
-                username: document.getElementById("username").value,
-                accounts: { "acc1": { name: "Account 1", agents: 0, engines: 0 } }
-            }).then(() => window.location.href = "profile.html");
-        });
-    } else {
-        firebase.auth().signInWithEmailAndPassword(e, p).then(() => window.location.href = "profile.html");
-    }
+function registerUser() {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("pass").value;
+    const username = document.getElementById("username").value;
+
+    firebase.auth().createUserWithEmailAndPassword(email, pass)
+        .then(userCredential => {
+            // Инициализация структуры базы данных
+            return firebase.database().ref('users/' + userCredential.user.uid).set({
+                username: username,
+                accounts: {
+                    "account1": {
+                        name: "Account 1",
+                        agents: 0,
+                        engines: 0,
+                        rosters: { "default": "Default Roster" }
+                    }
+                }
+            });
+        })
+        .then(() => window.location.href = "profile.html")
+        .catch(error => console.error(error));
 }
 </script>
-</body>
-</html>
