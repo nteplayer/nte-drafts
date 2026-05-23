@@ -1,45 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>SHIYU OUP PANEL - PROFILE</title>
+    <title>SHIYU OUP - PROFILE</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
+    <div id="app">
+        <h1 id="username">Загрузка...</h1>
+        <div id="tabs-container"></div>
+        <div id="content-container"></div>
+    </div>
 
-<div id="account-container"></div>
-<div id="roster-container"></div>
+    <script>
+        const firebaseConfig = { /* ВСТАВЬ СВОЙ КОНФИГ */ };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-<script>
-const firebaseConfig = { /* ВСТАВЬ СЮДА СВОЙ РАБОЧИЙ КОНФИГ */ };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-firebase.auth().onAuthStateChanged(user => {
-    if (!user) return window.location.href = "index.html";
-    
-    db.ref("users/" + user.uid).on("value", snapshot => {
-        const userData = snapshot.val();
-        if (!userData) return;
-
-        // ЛОГИКА РЕНДЕРИНГА ВЕТКИ ACCOUNTS
-        const accContainer = document.getElementById("account-container");
-        accContainer.innerHTML = ""; // Очистка
-        
-        if (userData.accounts) {
-            Object.keys(userData.accounts).forEach(accId => {
-                const acc = userData.accounts[accId];
-                // Создаем элементы вкладок и контента
-                const tab = document.createElement("div");
-                tab.innerText = acc.name || "Account";
-                // ... (тут твоя логика создания кнопок управления агентами/движками)
-                accContainer.appendChild(tab);
+        firebase.auth().onAuthStateChanged(user => {
+            if (!user) return window.location.href = "index.html";
+            
+            db.ref("users/" + user.uid).on("value", snap => {
+                const data = snap.val();
+                if (data) {
+                    document.getElementById("username").innerText = data.username;
+                    const tabs = document.getElementById("tabs-container");
+                    tabs.innerHTML = "";
+                    
+                    if (data.accounts) {
+                        Object.keys(data.accounts).forEach(key => {
+                            const acc = data.accounts[key];
+                            const div = document.createElement("div");
+                            div.className = "tab";
+                            div.innerText = acc.name;
+                            tabs.appendChild(div);
+                            
+                            document.getElementById("content-container").innerHTML = 
+                                `<h3>${acc.name}</h3><p>Agents: ${acc.agents}</p><p>Engines: ${acc.engines}</p>`;
+                        });
+                    }
+                }
             });
-        }
-    });
-});
-</script>
+        });
+    </script>
 </body>
 </html>
