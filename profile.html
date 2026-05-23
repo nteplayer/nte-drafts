@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        /* Дополнительные стили специально для продвинутого профиля */
         .profile-subnav {
             display: flex;
             gap: 15px;
@@ -69,6 +68,24 @@
             font-weight: bold;
             margin-top: 5px;
         }
+        /* Стили для плашки с результатами поиска */
+        .search-results-box {
+            margin-top: 15px;
+            background: #0c0d12;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .search-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            cursor: pointer;
+        }
+        .search-item:last-child { border-bottom: none; }
+        .search-item:hover { color: var(--accent-lime); }
     </style>
 </head>
 <body>
@@ -86,156 +103,11 @@
             <div class="content-header">
                 <h2>Player Control Center</h2>
                 <div>
-                    <span style="color: var(--text-muted)">Status:</span> 
-                    <span style="color: var(--accent-lime); font-weight: bold;">Verified Competitor</span>
+                    <span style="color: var(--text-muted)">Viewing:</span> 
+                    <span id="viewmode-badge" style="color: var(--accent-lime); font-weight: bold;">My Profile</span>
                 </div>
             </div>
 
             <div class="profile-subnav">
-                <button class="active-tab" onclick="switchProfileTab('roster')">Roster</button>
-                <button onclick="switchProfileTab('presets')">Presets (Preset 1 / Preset 2)</button>
-            </div>
-
-            <div class="profile-grid">
-                
-                <div class="left-column">
-                    <div class="content-card">
-                        <div class="user-meta-box">
-                            <div class="user-avatar" id="avatar-letters">NTE</div>
-                            <div>
-                                <h3 style="margin: 0;" id="profile-username">Loading...</h3>
-                                <div class="badge-lime">Account Verified</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="content-card" id="agents-section">
-                        <h3>Account Agents (38)</h3>
-                        <div class="agents-grid">
-                            <div class="agent-slot" style="border-color: var(--accent-lime); color:#fff">M3</div>
-                            <div class="agent-slot">M0</div>
-                            <div class="agent-slot">M0</div>
-                            <div class="agent-slot">M6</div>
-                            <div class="agent-slot">M2</div>
-                            <div class="agent-slot">M1</div>
-                            <div class="agent-slot">M0</div>
-                            <div class="agent-slot">M3</div>
-                            <div class="agent-slot">M0</div>
-                            <div class="agent-slot">M6</div>
-                        </div>
-                    </div>
-
-                    <div class="content-card">
-                        <h3>Linked Game Accounts</h3>
-                        <table class="tournament-table">
-                            <thead>
-                                <tr>
-                                    <th>Account Label</th>
-                                    <th>In-Game UID / Name</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><b>Main Account</b></td>
-                                    <td>DimaRusin_NTE</td>
-                                    <td style="color: var(--accent-lime)">Primary</td>
-                                </tr>
-                                <tr>
-                                    <td>Account 2</td>
-                                    <td>Dima_Alt_Cup</td>
-                                    <td style="color: var(--text-muted)">Backup</td>
-                                </tr>
-                                <tr>
-                                    <td>Account 3</td>
-                                    <td>—</td>
-                                    <td><span style="cursor: pointer; color: var(--accent-lime)">+ Link Account</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="right-column">
-                    
-                    <div class="content-card">
-                        <h3>Search User</h3>
-                        <input type="text" id="search-input" placeholder="Enter username...">
-                        <button style="padding: 10px;" onclick="searchUser()">Search</button>
-                    </div>
-
-                    <div class="content-card">
-                        <h3>Calculate Costs</h3>
-                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -10px;">Verify roster limitations for tournaments.</p>
-                        <div style="font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: var(--accent-lime)">
-                            Cost: <span id="calc-cost-display">0</span>
-                        </div>
-                        <button style="padding: 10px;" onclick="runCostCalc()">Recalculate</button>
-                    </div>
-
-                    <div class="content-card">
-                        <h3>Speedrun Calc</h3>
-                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -10px;">Estimate room clear timings.</p>
-                        <div style="background: #0c0d12; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color)">
-                            <span style="font-family: monospace; font-size: 1.2rem; color: #fff;">EST: 02:45.12</span>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        </main>
-    </div>
-
-    <script src="js/app.js"></script>
-    <script>
-        // Логика переключения под-вкладок (Roster / Presets)
-        function switchProfileTab(tabName) {
-            const buttons = document.querySelectorAll('.profile-subnav button');
-            buttons.forEach(btn => btn.classList.remove('active-tab'));
-            
-            // Подсвечиваем кликнутую кнопку
-            event.target.classList.add('active-tab');
-            
-            const agentsTitle = document.querySelector('#agents-section h3');
-            if(tabName === 'presets') {
-                agentsTitle.innerText = "Active Presets Setup (Preset 1)";
-            } else {
-                agentsTitle.innerText = "Account Agents (38)";
-            }
-        }
-
-        // Заглушка под калькулятор стоимости
-        function runCostCalc() {
-            const randomCost = Math.floor(Math.random() * 20) + 10;
-            document.getElementById('calc-cost-display').innerText = randomCost;
-        }
-
-        // Заглушка под поиск пользователей
-        function searchUser() {
-            const query = document.getElementById('search-input').value.trim();
-            if(query) {
-                alert('Searching for user: ' + query);
-            } else {
-                alert('Please enter a username to search.');
-            }
-        }
-
-        // Интеграция с Firebase для вывода данных залогиненного игрока
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                db.ref('users/' + user.uid).once('value').then(snapshot => {
-                    const data = snapshot.val();
-                    if(data) {
-                        document.getElementById('profile-username').innerText = data.username;
-                        // Берем первые две буквы для аватара
-                        document.getElementById('avatar-letters').innerText = data.username.substring(0, 3).toUpperCase();
-                    }
-                });
-            } else {
-                window.location.href = 'index.html';
-            }
-        });
-    </script>
-</body>
-</html>
+                <button class="active-tab" id="btn-roster" onclick="switchProfileTab('roster')">Roster</button>
+                <button id="btn-presets" onclick="switchProfile
