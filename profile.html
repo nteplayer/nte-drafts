@@ -26,6 +26,7 @@
             margin: 0 auto;
         }
         
+        /* Шапка профиля */
         header {
             display: flex;
             justify-content: space-between;
@@ -98,6 +99,7 @@
             margin-bottom: 15px;
         }
 
+        /* Контейнер Табов (Две строки: Accounts и Presets) */
         .tabs-menu-container {
             background: #111111;
             border-radius: 8px;
@@ -142,6 +144,7 @@
             padding: 0 5px;
         }
 
+        /* Главная рабочая область */
         .workspace-box {
             background: var(--bg-card);
             border-radius: 8px;
@@ -187,63 +190,3 @@
             margin-bottom: 10px;
         }
         .section-title { font-size: 1.1rem; font-weight: bold; }
-        .manage-btn {
-            background: #222;
-            border: 1px solid var(--border-color);
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-        .empty-placeholder-text {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            background: #1a1a1a;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px dashed #333;
-        }
-
-        .found-user-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .found-user-row:hover { background: #1a1a1a; }
-    </style>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-</head>
-<body>
-
-<div class="container">
-    <header>
-        <div class="user-info-block">
-            <div class="avatar-placeholder"></div>
-            <div class="user-names">
-                <span id="profile-display-name" class="main-username">Loading...</span>
-                <span id="sub-name-label" class="sub-username">Connecting...</span>
-            </div>
-        </div>
-        <div class="search-box">
-            <button class="search-trigger-btn" onclick="toggleSearchDropdown()">Search user &#9662;</button>
-            <div id="search-dropdown" class="dropdown">
-                <input type="text" id="search-input" placeholder="Enter username..." oninput="searchUserInDB()">
-                <div id="search-results-container"></div>
-            </div>
-        </div>
-    </header>
-
-    <button id="back-self-btn" class="back-btn" onclick="returnToOwnProfile()">Back to my profile</button>
-
-    <div class="tabs-menu-container">
-        <div class="tab-row" id="account-tabs-container">
-            <div class="row-label">// Accounts</div>
-            <div class="tab-item active" onclick="switchAccountTab('acc1', this)">мой акк</div>
-            <div class="tab-item" onclick="switchAccountTab('acc2', this)">Account 2</div>
-            <div class="tab-item" onclick
