@@ -3,25 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NTE Tournaments - Login</title>
+    <title>ShiyuCup - Gateway</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-    <div class="auth-container">
-        <h2>Neverness to Everness Tournaments</h2>
-        <div id="auth-forms">
-            <input type="email" id="auth-email" placeholder="Email Address" required>
-            <input type="password" id="auth-password" placeholder="Password" required>
-            <input type="text" id="auth-username" placeholder="In-game Nickname" required>
-            <div class="btn-group">
-                <button onclick="handleSignUp()">Sign Up</button>
-                <button onclick="handleLogin()">Login</button>
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <h2 id="auth-title" style="margin-bottom: 25px;">Sign In</h2>
+            
+            <div id="username-field-block" style="display: none;">
+                <label style="display:block; text-align:left; font-size:0.85rem; color:var(--text-muted);">Username</label>
+                <input type="text" id="auth-username" placeholder="Create a nickname...">
+            </div>
+
+            <label style="display:block; text-align:left; font-size:0.85rem; color:var(--text-muted);">Email</label>
+            <input type="email" id="auth-email" placeholder="name@domain.com">
+
+            <label style="display:block; text-align:left; font-size:0.85rem; color:var(--text-muted);">Password</label>
+            <input type="password" id="auth-password" placeholder="••••••••">
+
+            <button id="auth-btn" onclick="handleAuth()">Login</button>
+
+            <div class="auth-toggle">
+                <span id="toggle-text" onclick="toggleAuthMode()">Don't have an account? Register</span>
             </div>
         </div>
     </div>
+
     <script src="js/app.js"></script>
+    <script>
+        let isSignUpMode = false;
+
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            document.getElementById('auth-title').innerText = isSignUpMode ? "Create Account" : "Sign In";
+            document.getElementById('auth-btn').innerText = isSignUpMode ? "Register" : "Login";
+            document.getElementById('toggle-text').innerText = isSignUpMode ? "Already have an account? Sign In" : "Don't have an account? Register";
+            document.getElementById('username-field-block').style.display = isSignUpMode ? "block" : "none";
+        }
+
+        function handleAuth() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const username = document.getElementById('auth-username').value.trim();
+
+            if (!email || !password) return alert("Please fill in all standard fields.");
+
+            if (isSignUpMode) {
+                if (!username) return alert("Please choose a username.");
+                
+                // Регистрация нового пользователя
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        return db.ref('users/' + user.uid).set({
+                            username: username,
+                            email: email,
+                            createdAt: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    })
+                    .then(() => {
+                        window.location.href = 'dashboard.html';
+                    })
+                    .catch((error) => alert(error.message));
+            } else {
+                // Вход в аккаунт
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(() => {
+                        window.location.href = 'dashboard.html';
+                    })
+                    .catch((error) => alert(error.message));
+            }
+        }
+
+        // Если пользователь уже вошел — перенаправляем на дашборд
+        auth.onAuthStateChanged(user => {
+            if (user) window.location.href = 'dashboard.html';
+        });
+    </script>
 </body>
 </html>
