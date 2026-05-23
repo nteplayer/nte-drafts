@@ -1,552 +1,188 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHIYU CUP - Profile</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap">
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <style>
-        :root {
-            --bg-main: #0c0d0e;
-            --bg-card: #141619;
-            --bg-sidebar: #111214;
-            --accent-lime: #d4f900;
-            --text-main: #ffffff;
-            --text-muted: #70757d;
-            --border-color: #202327;
-            --bg-input: #1a1c20;
-        }
+// Конфигурация Firebase
+const firebaseConfig = {
+    apiKey: "ТВОЙ_API_KEY", 
+    authDomain: "nte-tournaments.firebaseapp.com",
+    databaseURL: "https://nte-tournaments-default-rtdb.firebaseio.com",
+    projectId: "nte-tournaments",
+    storageBucket: "nte-tournaments.appspot.com",
+    messagingSenderId: "SENDER_ID",
+    appId: "APP_ID"
+};
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-        }
+// Инициализация
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
+const db = firebase.database();
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            overflow-x: hidden;
-        }
+let currentLoggedUid = null;
 
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
+// ИСПРАВЛЕННАЯ СЛУЖБА АВТОРИЗАЦИИ
+auth.onAuthStateChanged(user => {
+    if (user) {
+        console.log("Пользователь успешно авторизован в Firebase Auth. UID:", user.uid);
+        currentLoggedUid = user.uid;
 
-        /* Сайдбар слева */
-        .sidebar {
-            width: 240px;
-            background-color: var(--bg-sidebar);
-            border-right: 1px solid var(--border-color);
-            padding: 20px 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .logo-area {
-            font-size: 1.1rem;
-            font-weight: 900;
-            letter-spacing: 1px;
-            margin-bottom: 30px;
-            padding-left: 10px;
-        }
-        .logo-area span {
-            color: #ff3e3e;
-            font-size: 0.7rem;
-            vertical-align: super;
-            margin-left: 4px;
-            font-weight: 700;
-        }
-
-        .sidebar-nav {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            flex-grow: 1;
-        }
-
-        .sidebar-nav a {
-            color: var(--text-main);
-            text-decoration: none;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            background: #18191c;
-            text-align: center;
-            border: 1px solid transparent;
-        }
-
-        .sidebar-nav a:hover, .sidebar-nav a.active {
-            background: var(--accent-lime);
-            color: #000000;
-            font-weight: 700;
-        }
-
-        .horny-box-banner {
-            background: linear-gradient(135deg, #1e1105, #141619);
-            border: 1px solid #d97706;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            margin-top: auto;
-        }
-        .horny-box-banner h4 {
-            color: #f59e0b;
-            font-size: 0.85rem;
-            margin-bottom: 5px;
-            font-weight: 800;
-        }
-        .horny-box-banner p {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        /* Главный контент */
-        .main-content {
-            flex-grow: 1;
-            padding: 25px 40px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* Верхняя панель (Шапка профиля) */
-        .profile-header-zone {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .user-profile-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .avatar-container {
-            position: relative;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: #242830;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-        .avatar-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .user-titles h2 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .user-titles p {
-            font-size: 0.75rem;
-            color: #f59e0b;
-        }
-
-        .edit-icon, .icon-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 0.85rem;
-        }
-        .edit-icon:hover, .icon-btn:hover { color: #fff; }
-
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        /* Поиск и кнопки */
-        .search-container-box {
-            position: relative;
-        }
-        .search-select-click {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        
-        .search-dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 45px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 15px;
-            width: 260px;
-            z-index: 10;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-        .search-dropdown-content input {
-            width: 100%;
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-size: 0.85rem;
-        }
-        .search-dropdown-content button {
-            width: 100%;
-            background: var(--accent-lime);
-            color: #000;
-            border: none;
-            padding: 8px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .action-pill-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* Навигация Аккаунтов и Пресетов (Две линии табов) */
-        .navigation-axis {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background: var(--bg-card);
-            padding: 15px 20px;
-            border-radius: 16px;
-        }
-
-        .nav-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .tab-group {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .tab-item {
-            background: #1c1e22;
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .tab-item.active {
-            background: var(--accent-lime);
-            color: #000;
-        }
-        .tab-item.plus-btn {
-            background: transparent;
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            padding: 0 10px;
-        }
-
-        .row-label {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        /* Главная контент-зона карточки */
-        .workspace-card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 25px;
-            min-height: 350px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .workspace-title-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .workspace-title-line h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .manage-btn {
-            background: #1c1e22;
-            border: 1px solid var(--border-color);
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .empty-state-text {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-top: 5px;
-        }
-
-        .results-box-search {
-            background: var(--bg-input);
-            border-radius: 10px;
-            padding: 10px;
-            margin-top: 10px;
-            font-size: 0.85rem;
-        }
-        .found-user-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px;
-            cursor: pointer;
-            border-radius: 6px;
-        }
-        .found-user-row:hover { background: #242830; color: var(--accent-lime); }
-    </style>
-</head>
-<body>
-
-    <div class="app-container">
-        
-        <aside class="sidebar">
-            <div class="logo-area">SHIYU CUP<span>BETA</span></div> <div class="sidebar-nav">
-                <a href="dashboard.html">Home</a>
-                <a href="profile.html" class="active">Profile</a> <a href="draft.html">Drafts</a>
-                <a href="tournaments.html">Tournaments</a>
-                <a href="#">Draft systems</a>
-                <a href="#">News</a>
-            </div>
-            
-            <div class="horny-box-banner">
-                <h4>HORNY BOX</h4> <p>ДОНАТЬ ВЫГОДНО</p> </div>
-        </aside>
-
-        <main class="main-content">
-            
-            <div class="profile-header-zone">
-                <div class="user-profile-info">
-                    <div class="avatar-container">
-                        <img id="user-avatar-img" src="https://via.placeholder.com/150" alt="Avatar">
-                    </div>
-                    <div class="user-titles">
-                        <h2><span id="profile-display-name">dima_rusin</span> <button class="edit-icon">✏️</button></h2> <p id="sub-name-label">dima_rusin</p> </div>
-                </div>
-
-                <div class="header-controls">
-                    <div class="search-container-box">
-                        <button class="search-select-click" onclick="toggleSearchDropdown()">Search user ▾</button> <div class="search-dropdown-content" id="search-dropdown">
-                            <input type="text" id="search-input" placeholder="Enter exact nickname...">
-                            <button onclick="searchUserInDB()">Find Player</button>
-                            <div id="search-results-container" style="display: none;"></div>
-                        </div>
-                    </div>
-                    <button class="action-pill-btn">Speedrun calc</button> </div>
-            </div>
-
-            <div class="navigation-axis">
-                <div class="nav-row">
-                    <div class="tab-group" id="account-tabs-container">
-                        <button class="tab-item active" onclick="switchAccountTab(this)">мой акк</button> <button class="tab-item" onclick="switchAccountTab(this)">турнирная</button> <button class="tab-item" onclick="switchAccountTab(this)">Account 3</button> </div>
-                    <div class="row-label">// Accounts</div> </div>
-
-                <div class="nav-row">
-                    <div class="tab-group" id="preset-tabs-container">
-                        <button class="tab-item active" onclick="switchPresetTab('roster', this)">Roster</button> <button class="tab-item" onclick="switchPresetTab('preset1', this)">Preset 1</button> <button class="tab-item" onclick="switchPresetTab('preset2', this)">Preset 2</button> <button class="tab-item plus-btn">+</button> </div>
-                    <div class="row-label">// Presets</div> </div>
-            </div>
-
-            <div class="workspace-card">
-                <div class="workspace-title-line">
-                    <h3 id="workspace-dynamic-title">Preset 2 <button class="edit-icon">✏️</button></h3> <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="manage-btn" style="background: transparent; color: var(--text-muted); display: none;" id="back-self-btn" onclick="returnToOwnProfile()">Back to my profile</button>
-                        <button class="manage-btn">Calculate costs ▾</button> <button class="manage-btn" id="main-action-node-btn">Manage preset</button> <button class="icon-btn" id="delete-node-btn" style="font-size: 1rem;">🗑️</button> </div>
-                </div>
-
-                <div style="margin-top: 10px;">
-                    <div class="workspace-title-line" style="margin-bottom: 8px;">
-                        <span style="font-weight: bold; font-size: 0.9rem;" id="agents-block-label">Preset agents</span> <span class="tab-item" style="padding: 2px 8px; font-size: 0.75rem; background: #1c1e22;" id="agents-count-node">0 🕒</span> </div>
-                    <div class="empty-state-text" id="agents-grid-placeholder">No agents configured.</div>
-                </div>
-
-                <div style="margin-top: 10px;">
-                    <div class="workspace-title-line" style="margin-bottom: 8px;">
-                        <span style="font-weight: bold; font-size: 0.9rem;" id="engines-block-label">Preset engines</span> <span class="tab-item" style="padding: 2px 8px; font-size: 0.75rem; background: #1c1e22;" id="engines-count-node">0 🕒</span> </div>
-                    <div class="empty-state-text" id="engines-grid-placeholder">No engines configured.</div>
-                </div>
-            </div>
-
-        </main>
-    </div>
-
-    <script>
-        // Перед запуском обязательно замените поля ниже данными из вашей панели Firebase Console!
-        const firebaseConfig = {
-            apiKey: "ТВОЙ_ПРАВИЛЬНЫЙ_API_KEY", 
-            authDomain: "nte-tournaments.firebaseapp.com",
-            databaseURL: "https://nte-tournaments-default-rtdb.firebaseio.com",
-            projectId: "nte-tournaments",
-            storageBucket: "nte-tournaments.appspot.com",
-            messagingSenderId: "SENDER_ID",
-            appId: "APP_ID"
-        };
-
-        // Инициализация
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const auth = firebase.auth();
-        const db = firebase.database();
-
-        let currentLoggedUid = null;
-
-        // Отслеживание авторизации
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentLoggedUid = user.uid;
-                loadUserProfileData(user.uid, true);
+        // Проверяем, существует ли этот пользователь в Realtime Database в ветке users
+        db.ref('users/' + user.uid).once('value').then(snapshot => {
+            if (!snapshot.exists()) {
+                console.warn(`Ветка users/${user.uid} не найдена. Создаем профиль по умолчанию...`);
+                
+                // Автоматически создаем запись, чтобы profile.html не падал из-за отсутствия данных
+                db.ref('users/' + user.uid).set({
+                    username: "dima_rusin", // Твой никнейм по умолчанию
+                    email: user.email || "no-email"
+                }).then(() => {
+                    console.log("Дефолтный профиль успешно создан в базе данных.");
+                    loadUserProfileData(user.uid, true);
+                }).catch(dbErr => {
+                    console.error("Не удалось автоматически создать ветку пользователя в БД:", dbErr);
+                    loadUserProfileData(user.uid, true);
+                });
             } else {
-                window.location.href = 'index.html';
+                console.log("Данные пользователя найдены в БД. Загружаем профиль...");
+                loadUserProfileData(user.uid, true);
             }
+        }).catch(err => {
+            console.error("Ошибка при чтении ветки users из БД:", err);
+            // Даже если база данных вернула ошибку, пытаемся отобразить интерфейс, а не выкидываем
+            loadUserProfileData(user.uid, true);
         });
 
-        // Загрузка данных конкретного профиля
-        function loadUserProfileData(uid, isItMe) {
-            if (isItMe) {
-                document.getElementById('back-self-btn').style.display = 'none';
-            } else {
-                document.getElementById('back-self-btn').style.display = 'inline-block';
-            }
+    } else {
+        console.warn("Пользователь не авторизован (Auth State: null). Перенаправление на index.html");
+        window.location.href = 'index.html';
+    }
+});
 
-            db.ref('users/' + uid).once('value').then(snapshot => {
-                const data = snapshot.val();
-                if (data) {
-                    document.getElementById('profile-display-name').innerText = data.username || "unknown";
-                    document.getElementById('sub-name-label').innerText = data.username || "unknown";
-                }
-            }).catch(err => console.error("Database read error: ", err));
-        }
+// ИСПРАВЛЕННАЯ ЗАГРУЗКА ДАННЫХ
+function loadUserProfileData(uid, isItMe) {
+    if (isItMe) {
+        document.getElementById('back-self-btn').style.display = 'none';
+    } else {
+        document.getElementById('back-self-btn').style.display = 'inline-block';
+    }
 
-        // Выпадающее окно поиска
-        function toggleSearchDropdown() {
-            const drop = document.getElementById('search-dropdown');
-            drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
-        }
-
-        // Живой поиск по базе данных по точному совпадению никнейма
-        function searchUserInDB() {
-            const query = document.getElementById('search-input').value.trim();
-            const resContainer = document.getElementById('search-results-container');
+    db.ref('users/' + uid).once('value').then(snapshot => {
+        const data = snapshot.val();
+        if (data) {
+            console.log(`Данные профиля для UID ${uid} успешно загружены:`, data);
+            document.getElementById('profile-display-name').innerText = data.username || "unknown";
+            document.getElementById('sub-name-label').innerText = data.username || "unknown";
             
-            if (!query) return;
-
-            db.ref('users').orderByChild('username').equalTo(query).once('value').then(snapshot => {
-                resContainer.innerHTML = '';
-                resContainer.style.display = 'block';
-
-                if (!snapshot.exists()) {
-                    resContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.8rem; padding:5px;">User not found</p>';
-                    return;
-                }
-
-                snapshot.forEach(child => {
-                    const userKey = child.key;
-                    const userData = child.val();
-                    resContainer.innerHTML += `
-                        <div class="results-box-search">
-                            <div class="found-user-row" onclick="viewTargetUser('${userKey}')">
-                                <span>👤 ${userData.username}</span>
-                                <span style="color:var(--accent-lime)">Open →</span>
-                            </div>
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        function viewTargetUser(uid) {
-            loadUserProfileData(uid, false);
-            document.getElementById('search-dropdown').style.display = 'none';
-            document.getElementById('search-input').value = '';
-        }
-
-        function returnToOwnProfile() {
-            if (currentLoggedUid) {
-                loadUserProfileData(currentLoggedUid, true);
+            // Проверка админки срабатывает ТОЛЬКО для текущего вошедшего юзера и если у него есть никнейм
+            if (isItMe && data.username) {
+                checkAdminStatus(data.username);
             }
+        } else {
+            console.warn(`Ветка users/${uid} вернула пустое значение (null).`);
+            document.getElementById('profile-display-name').innerText = "New User";
+            document.getElementById('sub-name-label').innerText = "id: " + uid;
+        }
+    }).catch(err => {
+        console.error(`Критическая ошибка при загрузке loadUserProfileData для UID ${uid}:`, err);
+    });
+}
+
+// ФУНКЦИЯ ПРОВЕРКИ СТАТУСА АДМИНА ПО НИКНЕЙМУ
+function checkAdminStatus(username) {
+    console.log(`Запрос на проверку прав администратора для никнейма: ${username}`);
+    
+    db.ref('admins/' + username).once('value').then(snapshot => {
+        const isAdminButton = document.getElementById('admin-panel-btn');
+        
+        if (snapshot.exists() && snapshot.val() === true) {
+            console.log(`Права подтверждены! Никнейм ${username} найден в списке admins со значением true.`);
+            if (isAdminButton) isAdminButton.style.display = 'block'; 
+        } else {
+            console.log(`Доступ к админ-панели скрыт. Никнейм ${username} отсутствует в списке admins или значение не равно true.`);
+            if (isAdminButton) isAdminButton.style.display = 'none';  
+        }
+    }).catch(err => {
+        console.error("Ошибка при обращении к ветке /admins/ в Realtime Database:", err);
+    });
+}
+
+// ОСТАЛЬНОЙ ФУНКЦИОНАЛ ПОИСКА И ПЕРЕКЛЮЧЕНИЯ ВКЛАДОК (БЕЗ ИЗМЕНЕНИЙ)
+function toggleSearchDropdown() {
+    const drop = document.getElementById('search-dropdown');
+    drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
+}
+
+function searchUserInDB() {
+    const query = document.getElementById('search-input').value.trim();
+    const resContainer = document.getElementById('search-results-container');
+    
+    if (!query) return;
+
+    db.ref('users').orderByChild('username').equalTo(query).once('value').then(snapshot => {
+        resContainer.innerHTML = '';
+        resContainer.style.display = 'block';
+
+        if (!snapshot.exists()) {
+            resContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.8rem; padding:5px;">User not found</p>';
+            return;
         }
 
-        // Логика табов аккаунтов (строка 1)
-        function switchAccountTab(element) {
-            const tabs = document.querySelectorAll('#account-tabs-container .tab-item');
-            tabs.forEach(t => t.classList.remove('active'));
-            element.classList.add('active');
-        }
+        snapshot.forEach(child => {
+            const userKey = child.key;
+            const userData = child.val();
+            resContainer.innerHTML += `
+                <div class="results-box-search">
+                    <div class="found-user-row" onclick="viewTargetUser('${userKey}')">
+                        <span>👤 ${userData.username}</span>
+                        <span style="color:var(--accent-lime)">Open →</span>
+                    </div>
+                </div>
+            `;
+        });
+    });
+}
 
-        // Логика табов пресетов (строка 2)
-        function switchPresetTab(type, element) {
-            const tabs = document.querySelectorAll('#preset-tabs-container .tab-item');
-            tabs.forEach(t => t.classList.remove('active'));
-            element.classList.add('active');
+function viewTargetUser(uid) {
+    loadUserProfileData(uid, false);
+    document.getElementById('search-dropdown').style.display = 'none';
+    document.getElementById('search-input').value = '';
+}
 
-            const mainTitle = document.getElementById('workspace-dynamic-title');
-            const agentsLabel = document.getElementById('agents-block-label');
-            const enginesLabel = document.getElementById('engines-block-label');
-            const actionBtn = document.getElementById('main-action-node-btn');
+function returnToOwnProfile() {
+    if (currentLoggedUid) {
+        loadUserProfileData(currentLoggedUid, true);
+    }
+}
 
-            if (type === 'roster') {
-                mainTitle.innerHTML = `мой акк <button class="edit-icon">✏️</button>`; //
-                agentsLabel.innerText = 'Account agents'; //
-                enginesLabel.innerText = 'Account engines'; //
-                actionBtn.innerText = 'Manage agents'; //
-            } else if (type === 'preset1') {
-                mainTitle.innerHTML = `Preset 1 <button class="edit-icon">✏️</button>`;
-                agentsLabel.innerText = 'Preset agents';
-                enginesLabel.innerText = 'Preset engines';
-                actionBtn.innerText = 'Manage preset';
-            } else if (type === 'preset2') {
-                mainTitle.innerHTML = `Preset 2 <button class="edit-icon">✏️</button>`; //
-                agentsLabel.innerText = 'Preset agents'; //
-                enginesLabel.innerText = 'Preset engines'; //
-                actionBtn.innerText = 'Manage preset'; //
-            }
-        }
-    </script>
-</body>
-</html>
+function switchAccountTab(element) {
+    const tabs = document.querySelectorAll('#account-tabs-container .tab-item');
+    tabs.forEach(t => t.classList.remove('active'));
+    element.classList.add('active');
+}
+
+// Отредактировано под стили Shiyu Cup
+function switchPresetTab(type, element) {
+    const tabs = document.querySelectorAll('#preset-tabs-container .tab-item');
+    tabs.forEach(t => t.classList.remove('active'));
+    element.classList.add('active');
+
+    const mainTitle = document.getElementById('workspace-dynamic-title');
+    const agentsLabel = document.getElementById('agents-block-label');
+    const enginesLabel = document.getElementById('engines-block-label');
+    const actionBtn = document.getElementById('main-action-node-btn');
+
+    if (type === 'roster') {
+        mainTitle.innerHTML = `мой акк <button class="edit-icon">✏️</button>`;
+        agentsLabel.innerText = 'Account agents';
+        enginesLabel.innerText = 'Account engines';
+        actionBtn.innerText = 'Manage agents';
+    } else if (type === 'preset1') {
+        mainTitle.innerHTML = `Preset 1 <button class="edit-icon">✏️</button>`;
+        agentsLabel.innerText = 'Preset agents';
+        enginesLabel.innerText = 'Preset engines';
+        actionBtn.innerText = 'Manage preset';
+    } else if (type === 'preset2') {
+        mainTitle.innerHTML = `Preset 2 <button class="edit-icon">✏️</button>`;
+        agentsLabel.innerText = 'Preset agents';
+        enginesLabel.innerText = 'Preset engines';
+        actionBtn.innerText = 'Manage preset';
+    }
+}
