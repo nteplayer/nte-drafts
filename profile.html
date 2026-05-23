@@ -342,12 +342,12 @@
 
 <div class="sidebar">
     <div class="logo-area">SHIYU OUP<span>BETA</span></div>
-    <button class="sidebar-btn" onclick="switchMainScreen('home', this)">Home</button>
+    <button class="sidebar-btn" id="menu-btn-home" onclick="switchMainScreen('home', this)">Home</button>
     <button class="sidebar-btn active" id="menu-btn-profile" onclick="switchMainScreen('profile', this)">Profile</button>
-    <button class="sidebar-btn" onclick="switchMainScreen('drafts', this)">Drafts</button>
-    <button class="sidebar-btn" onclick="switchMainScreen('tournaments', this)">Tournaments</button>
-    <button class="sidebar-btn" onclick="switchMainScreen('draft_systems', this)">Draft systems</button>
-    <button class="sidebar-btn" onclick="switchMainScreen('news', this)">News</button>
+    <button class="sidebar-btn" id="menu-btn-drafts" onclick="switchMainScreen('drafts', this)">Drafts</button>
+    <button class="sidebar-btn" id="menu-btn-tournaments" onclick="switchMainScreen('tournaments', this)">Tournaments</button>
+    <button class="sidebar-btn" id="menu-btn-draft_systems" onclick="switchMainScreen('draft_systems', this)">Draft systems</button>
+    <button class="sidebar-btn" id="menu-btn-news" onclick="switchMainScreen('news', this)">News</button>
 </div>
 
 <div class="main-container">
@@ -473,6 +473,14 @@ let viewTargetUid = null;
 let currentSelectedAccount = "мой акк"; 
 let currentSelectedPreset = "Roster";
 
+// Функция принудительной активации экрана профиля при загрузке страницы
+window.addEventListener('DOMContentLoaded', () => {
+    const profileBtn = document.getElementById("menu-btn-profile");
+    if (profileBtn) {
+        switchMainScreen('profile', profileBtn);
+    }
+});
+
 auth.onAuthStateChanged(function(user) { 
     const authBtn = document.getElementById("auth-state-btn");
     if (user) { 
@@ -495,7 +503,6 @@ auth.onAuthStateChanged(function(user) {
             authBtn.classList.add("login-trigger-btn");
         }
         
-        // Моментально рендерим дефолтный пустой вид, чтобы не висел Loading...
         renderAccountTabs({"мой акк": {}});
         renderPresetTabs({"Roster": {}});
         updateWorkspaceDOM({
@@ -709,6 +716,7 @@ function switchMainScreen(screenName, btnElement) {
     if(target) target.classList.add("active-screen");
 }
 
+// ... остальной код поиска без изменений ...
 function toggleSearchDropdown() {
     const drop = document.getElementById("search-dropdown");
     drop.style.display = drop.style.display === "block" ? "none" : "block";
