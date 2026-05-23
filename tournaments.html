@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>NTE - Tournaments</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 </head>
 <body>
     <div class="app-wrapper">
@@ -13,21 +14,33 @@
             <a href="profile.html">Profile</a>
             <a href="draft.html">Drafts</a>
             <a href="tournaments.html" class="active">Tournaments</a>
-            <a href="news.html">News</a>
         </aside>
 
         <main class="main-content">
             <div class="content-header">
                 <h2>Tournament Schedules</h2>
             </div>
+            
             <div class="content-card">
                 <table class="tournament-table">
                     <thead>
-                        <tr><th>Event</th><th>Format</th><th>Status</th></tr>
+                        <tr>
+                            <th>Event Name</th>
+                            <th>Format System</th>
+                            <th>Status</th>
+                        </tr>
                     </thead>
                     <tbody>
-                        <tr><td><b>Urban shadows</b></td><td>BO2 Systems</td><td style="color:var(--accent-lime)">LIVE</td></tr>
-                        <tr><td><b>Rookie Cup</b></td><td>BO1 System</td><td>UPCOMING</td></tr>
+                        <tr>
+                            <td><b>Urban Shadows Invitational</b></td>
+                            <td>BO2 Double Rotation</td>
+                            <td><span style="color:var(--accent-lime); font-weight: bold;">LIVE</span></td>
+                        </tr>
+                        <tr>
+                            <td><b>Everness Rookie Cup</b></td>
+                            <td>BO1 Elimination</td>
+                            <td style="color: var(--text-muted)">UPCOMING</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
