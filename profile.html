@@ -1,12 +1,239 @@
-const firebaseConfig = { apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx_JXcTP4", authDomain: "nte-tournaments.firebaseapp.com", databaseURL: "https://nte-tournaments-default-rtdb.firebaseio.com", projectId: "nte-tournaments", storageBucket: "nte-tournaments.appspot.com", messagingSenderId: "1022034023092", appId: "1:1022034023092:web:d269068348b24abed93de1" };
-if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); };
-const auth = firebase.auth(); const db = firebase.database(); let currentLoggedUid = null;
-auth.onAuthStateChanged(function(user) { if (user) { currentLoggedUid = user.uid; db.ref("users/" + user.uid).once("value").then(function(snapshot) { if (snapshot.exists()) { loadUserProfileData(user.uid, true); } else { if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = "New User"; }; if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = "id: " + user.uid; }; }; }).catch(function(err) { loadUserProfileData(user.uid, true); }); } else { window.location.href = "index.html"; }; });
-function loadUserProfileData(uid, isItMe) { if (isItMe) { if(document.getElementById("back-self-btn")) { document.getElementById("back-self-btn").style.display = "none"; }; } else { if(document.getElementById("back-self-btn")) { document.getElementById("back-self-btn").style.display = "inline-block"; }; }; db.ref("users/" + uid).once("value").then(function(snapshot) { const data = snapshot.val(); if (data) { if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = data.username || "unknown"; }; if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = data.username || "unknown"; }; if (isItMe && data.username) { checkAdminStatus(data.username); }; } else { if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = "New User"; }; if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = "id: " + uid; }; }; }).catch(function(err) { console.error(err); }); };
-function checkAdminStatus(username) { db.ref("admins/" + username).once("value").then(function(snapshot) { const isAdminButton = document.getElementById("admin-panel-btn"); if (snapshot.exists() && snapshot.val() === true) { if (isAdminButton) { isAdminButton.style.display = "block"; }; } else { if (isAdminButton) { isAdminButton.style.display = "none"; }; }; }).catch(function(err) { console.error(err); }); };
-function toggleSearchDropdown() { const drop = document.getElementById("search-dropdown"); if(drop) { drop.style.display = drop.style.display === "block" ? "none" : "block"; }; };
-function searchUserInDB() { const query = document.getElementById("search-input").value.trim(); const resContainer = document.getElementById("search-results-container"); if (!query || !resContainer) return; db.ref("users").orderByChild("username").equalTo(query).once("value").then(function(snapshot) { resContainer.innerHTML = ""; resContainer.style.display = "block"; if (!snapshot.exists()) { resContainer.innerText = "User not found"; return; }; snapshot.forEach(function(child) { const userKey = child.key; const userData = child.val(); resContainer.innerHTML += "<div class='results-box-search' onclick='viewTargetUser(\"" + userKey + "\")'><div class='found-user-row'><span>" + userData.username + "</span><span>Open &rarr;</span></div></div>"; }); }); };
-function viewTargetUser(uid) { loadUserProfileData(uid, false); if(document.getElementById("search-dropdown")) { document.getElementById("search-dropdown").style.display = "none"; }; if(document.getElementById("search-input")) { document.getElementById("search-input").value = ""; }; };
-function returnToOwnProfile() { if (currentLoggedUid) { loadUserProfileData(currentLoggedUid, true); }; };
-function switchAccountTab(element) { const tabs = document.querySelectorAll("#account-tabs-container .tab-item"); tabs.forEach(function(t) { t.classList.remove("active"); }); element.classList.add("active"); };
-function switchPresetTab(type, element) { const tabs = document.querySelectorAll("#preset-tabs-container .tab-item"); tabs.forEach(function(t) { t.classList.remove("active"); }); element.classList.add("active"); const mainTitle = document.getElementById("workspace-dynamic-title"); const agentsLabel = document.getElementById("agents-block-label"); const enginesLabel = document.getElementById("engines-block-label"); const actionBtn = document.getElementById("main-action-node-btn"); if(!mainTitle) return; if (type === "roster") { if (mainTitle.firstChild) { mainTitle.firstChild.textContent = "Account "; } else { mainTitle.innerText = "Account"; }; if(agentsLabel) { agentsLabel.innerText = "Account agents"; }; if(enginesLabel) { enginesLabel.innerText = "Account engines"; }; if(actionBtn) { actionBtn.innerText = "Manage agents"; }; } else if (type === "preset1") { if (mainTitle.firstChild) { mainTitle.firstChild.textContent = "Preset 1 "; } else { mainTitle.innerText = "Preset 1"; }; if(agentsLabel) { agentsLabel.innerText = "Preset agents"; }; if(enginesLabel) { enginesLabel.innerText = "Preset engines"; }; if(actionBtn) { actionBtn.innerText = "Manage preset"; }; } else if (type === "preset2") { if (mainTitle.firstChild) { mainTitle.firstChild.textContent = "Preset 2 "; } else { mainTitle.innerText = "Preset 2"; }; if(agentsLabel) { agentsLabel.innerText = "Preset agents"; }; if(enginesLabel) { enginesLabel.innerText = "Preset engines"; }; if(actionBtn) { actionBtn.innerText = "Manage preset"; }; }; };
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        :root {
+            --bg-main: #0a0a0a;
+            --bg-card: #141414;
+            --bg-tab: #1f1f1f;
+            --text-main: #ffffff;
+            --text-muted: #757575;
+            --accent-yellow: #e5fe02;
+            --border-color: #222222;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        /* Верхняя панель: Профиль и Поиск */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .user-info-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .avatar-placeholder {
+            width: 45px;
+            height: 45px;
+            background: #2a2a2a;
+            border-radius: 50%;
+        }
+        .user-names {
+            display: flex;
+            flex-direction: column;
+        }
+        .main-username {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .sub-username {
+            font-size: 0.8rem;
+            color: #e5fe02;
+        }
+        
+        .search-box { position: relative; }
+        .search-trigger-btn {
+            background: #141414;
+            color: #fff;
+            border: 1px solid var(--border-color);
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .dropdown {
+            position: absolute;
+            top: 35px; right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 250px;
+            display: none;
+            z-index: 10;
+            padding: 10px;
+        }
+        .dropdown input {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        /* Кнопка возврата к себе */
+        .back-btn {
+            display: none;
+            background: none;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        /* Двухуровневые табы */
+        .tabs-menu-container {
+            background: #111111;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .tab-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .row-label {
+            width: 100px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: right;
+            padding-right: 10px;
+        }
+        .tab-item {
+            padding: 6px 14px;
+            background: var(--bg-tab);
+            border-radius: 15px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: #ccc;
+        }
+        .tab-item.active {
+            background: var(--accent-yellow);
+            color: #000;
+            font-weight: bold;
+        }
+        .add-tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        /* Главная рабочая область */
+        .workspace-box {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .workspace-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .title-with-edit {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.2rem;
+        }
+        .edit-icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .admin-panel-link {
+            display: none;
+            background: var(--accent-yellow);
+            color: #000;
+            text-decoration: none;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        /* Блоки содержимого */
+        .info-section {
+            margin-bottom: 20px;
+        }
+        .section-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .manage-btn {
+            background: #222;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .empty-placeholder-text {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            background: #1a1a1a;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px dashed #333;
+        }
+
+        /* Поиск */
+        .found-user-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .found-user-row:hover { background: #1a1a1a; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="user-info-block">
+            <div class="avatar-placeholder"></div>
+            <div class="user-names">
+                <span id="profile-display-name" class="main-
