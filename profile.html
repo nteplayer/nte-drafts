@@ -4,32 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SHIYU OUP PANEL - PROFILE</title>
-    <style>
-        :root {
-            --bg-main: #0a0a0a;
-            --bg-card: #111111;
-            --text-main: #ffffff;
-            --accent-yellow: #e5fe02;
-            --border-color: #222222;
-        }
-        body { background-color: var(--bg-main); color: var(--text-main); font-family: sans-serif; padding: 40px; }
-        .guest-badge { background: rgba(229, 254, 2, 0.1); border: 1px solid var(--accent-yellow); color: var(--accent-yellow); padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; }
-        .data-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; }
-    </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-
-<div id="guest-badge-status" class="guest-badge">
-    Внимание: Вы находитесь в режиме гостя. Если вы вошли в аккаунт, обновите страницу (Ctrl+F5).
-</div>
-
-<h1 id="profile-display-name">Загрузка данных...</h1>
-<div class="data-card">
-    <p id="debug-info">Статус: ожидание авторизации...</p>
-</div>
 
 <script>
 const firebaseConfig = { 
@@ -41,39 +20,28 @@ const firebaseConfig = {
     messagingSenderId: "1022034023092", 
     appId: "1:1022034023092:web:d269068348b24abed93de1" 
 };
-
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
 auth.onAuthStateChanged(function(user) {
-    const debug = document.getElementById("debug-info");
-    const nameDisplay = document.getElementById("profile-display-name");
-    const guestBadge = document.getElementById("guest-badge-status");
-
+    // Находим плашку гостевого режима (если она есть в твоей верстке)
+    const guestBadge = document.querySelector(".guest-badge");
+    
     if (user) {
-        debug.innerText = "Авторизован как: " + user.uid;
-        guestBadge.style.display = "none";
+        // Если пользователь залогинен, просто прячем плашку гостя
+        if (guestBadge) guestBadge.style.display = "none";
         
-        // Читаем данные по конкретному пользователю
-        db.ref("users/" + user.uid).once("value")
-            .then(function(snapshot) {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    nameDisplay.innerText = "Привет, " + (data.username || "Игрок");
-                    debug.innerText = "Данные успешно получены из базы.";
-                } else {
-                    nameDisplay.innerText = "Аккаунт найден, но данных в БД нет.";
-                    debug.innerText = "Путь users/" + user.uid + " пуст.";
-                }
-            })
-            .catch(function(error) {
-                debug.innerText = "Ошибка БД: " + error.message;
-            });
+        // Загружаем данные профиля (тихо, без лишних сообщений на экран)
+        db.ref("users/" + user.uid).once("value").then(function(snapshot) {
+            const data = snapshot.val();
+            if (data) {
+                // Тут твой код заполнения полей профиля данными (username и т.д.)
+            }
+        });
     } else {
-        debug.innerText = "Пользователь не авторизован.";
-        guestBadge.style.display = "block";
-        nameDisplay.innerText = "Гостевой режим";
+        // Если не залогинен, показываем плашку гостя
+        if (guestBadge) guestBadge.style.display = "block";
     }
 });
 </script>
