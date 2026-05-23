@@ -24,7 +24,7 @@ auth.onAuthStateChanged(user => {
             if (!snapshot.exists()) {
                 console.warn("User branch not found. Creating default...");
                 db.ref('users/' + user.uid).set({
-                    username: "dima_rusin",
+                    username: "DimaRusin",
                     email: user.email || "no-email"
                 }).then(() => {
                     console.log("Profile created successfully.");
