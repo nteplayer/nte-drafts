@@ -238,7 +238,6 @@ const firebaseConfig = {
     appId: "1:1022034023092:web:d269068348b24abed93de1" 
 };
 
-// Безопасная инициализация без дублирования
 if (!firebase.apps.length) { 
     firebase.initializeApp(firebaseConfig); 
 }
@@ -251,7 +250,7 @@ function redirectToMain() {
     window.location.href = "profile.html";
 }
 
-// Переключение Вход / Регистрация
+// Переключение между Входом и Регистрацией
 function toggleAuthMode(signUp) {
     isSignUpMode = signUp;
     const title = document.getElementById("auth-title");
@@ -280,7 +279,7 @@ function toggleAuthMode(signUp) {
     }
 }
 
-// Отправка формы
+// Логика кнопок формы
 function handleAuthSubmit(event) {
     event.preventDefault();
     const email = document.getElementById("auth-email").value.trim();
@@ -290,12 +289,14 @@ function handleAuthSubmit(event) {
     if(errorBox) errorBox.style.display = "none";
 
     if (isSignUpMode) {
+        // НАЖАЛИ РЕГИСТРАЦИЮ
         const username = document.getElementById("reg-username").value.trim();
         if(!username) return;
 
         auth.createUserWithEmailAndPassword(email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
+                // Записываем структуру нового профиля в базу данных
                 return db.ref("users/" + user.uid).set({
                     username: username,
                     accounts: {
@@ -311,6 +312,7 @@ function handleAuthSubmit(event) {
                 });
             })
             .then(() => {
+                // Перенаправляем на профиль только после того, как данные сохранились в Firebase БД
                 window.location.replace("profile.html");
             })
             .catch((error) => {
@@ -320,6 +322,7 @@ function handleAuthSubmit(event) {
                 }
             });
     } else {
+        // НАЖАЛИ ВХОД
         auth.signInWithEmailAndPassword(email, password)
             .then(() => {
                 window.location.replace("profile.html");
