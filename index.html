@@ -335,6 +335,23 @@ function handleAuthSubmit(event) {
             });
     }
 }
+    // НАСТРОЙКИ FIREBASE (ВНИЗУ ФАЙЛА INDEX.HTML)
+const firebaseConfig = { 
+    apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx__JXcTP4", 
+    authDomain: "nte-tournaments.firebaseapp.com", 
+    databaseURL: "https://nte-tournaments-7b0e3-default-rtdb.firebaseio.com", 
+    projectId: "nte-tournaments", 
+    storageBucket: "nte-tournaments.appspot.com", 
+    messagingSenderId: "1022034023092", 
+    appId: "1:1022034023092:web:d269068348b24abed93de1" 
+};
+
+// Инициализация
+if (!firebase.apps.length) { 
+    firebase.initializeApp(firebaseConfig); 
+}
+const auth = firebase.auth();
+const db = firebase.database();
 </script>
 
 </body>
