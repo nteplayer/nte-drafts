@@ -356,8 +356,8 @@
         <div class="user-profile-header">
             <div class="avatar"></div>
             <div class="user-titles">
-                <span id="profile-display-name" class="username-txt">Loading...</span>
-                <span id="sub-name-label" class="uid-txt">Connecting...</span>
+                <span id="profile-display-name" class="username-txt">Guest Mode</span>
+                <span id="sub-name-label" class="uid-txt">Offline</span>
             </div>
         </div>
         <div class="header-controls">
@@ -368,7 +368,7 @@
                     <div id="search-results-container" class="search-results"></div>
                 </div>
             </div>
-            <button id="auth-state-btn" class="auth-action-btn" onclick="handleAuthAction()">Logout</button>
+            <button id="auth-state-btn" class="auth-action-btn login-trigger-btn" onclick="handleAuthAction()">Login</button>
         </div>
     </header>
 
@@ -495,21 +495,22 @@ auth.onAuthStateChanged(function(user) {
             authBtn.classList.add("login-trigger-btn");
         }
         
-        // Рендерим пустые дефолтные вкладки для режима просмотра без логина
+        // Моментально рендерим дефолтный пустой вид, чтобы не висел Loading...
         renderAccountTabs({"мой акк": {}});
         renderPresetTabs({"Roster": {}});
+        updateWorkspaceDOM({
+            agentsHtml: "No active agents configured for this view.",
+            enginesHtml: "No engines connected."
+        });
     }
 });
 
-// Клик по кнопке входа/выхода
 function handleAuthAction() {
     if (currentLoggedUid) {
-        // Если залогинен — разлогиниваем
         auth.signOut().then(() => {
             window.location.reload();
         }).catch(err => console.error(err));
     } else {
-        // Если разлогинен — перекидываем обратно на твою страницу авторизации index.html или регистрацию
         window.location.href = "index.html"; 
     }
 }
