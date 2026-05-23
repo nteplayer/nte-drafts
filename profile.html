@@ -17,102 +17,94 @@ let currentLoggedUid = null;
 
 auth.onAuthStateChanged(user => {
     if (user) {
-        console.log("Пользователь авторизован. UID:", user.uid);
         currentLoggedUid = user.uid;
-        
-        db.ref('users/' + user.uid).once('value').then(snapshot => {
+        db.ref("users/" + user.uid).once("value").then(snapshot => {
             if (snapshot.exists()) {
-                console.log("Данные профиля успешно найдены в БД.");
                 loadUserProfileData(user.uid, true);
             } else {
-                console.warn("У этого пользователя нет записи в ветке users базы данных.");
-                if(document.getElementById('profile-display-name')) document.getElementById('profile-display-name').innerText = "New User";
-                if(document.getElementById('sub-name-label')) document.getElementById('sub-name-label').innerText = "id: " + user.uid;
+                if(document.getElementById("profile-display-name")) document.getElementById("profile-display-name").innerText = "New User";
+                if(document.getElementById("sub-name-label")) document.getElementById("sub-name-label").innerText = "id: " + user.uid;
             }
         }).catch(err => {
-            console.error("Ошибка чтения базы данных:", err);
             loadUserProfileData(user.uid, true);
         });
     } else {
-        console.warn("Пользователь не авторизован. Перенаправление на главную страницу...");
-        window.location.href = 'index.html';
+        window.location.href = "index.html";
     }
 });
 
 function loadUserProfileData(uid, isItMe) {
     if (isItMe) {
-        if(document.getElementById('back-self-btn')) document.getElementById('back-self-btn').style.display = 'none';
+        if(document.getElementById("back-self-btn")) document.getElementById("back-self-btn").style.display = "none";
     } else {
-        if(document.getElementById('back-self-btn')) document.getElementById('back-self-btn').style.display = 'inline-block';
+        if(document.getElementById("back-self-btn")) document.getElementById("back-self-btn").style.display = "inline-block";
     }
 
-    db.ref('users/' + uid).once('value').then(snapshot => {
+    db.ref("users/" + uid).once("value").then(snapshot => {
         const data = snapshot.val();
         if (data) {
-            console.log("Загружены данные профиля:", data);
-            if(document.getElementById('profile-display-name')) document.getElementById('profile-display-name').innerText = data.username || "unknown";
-            if(document.getElementById('sub-name-label')) document.getElementById('sub-name-label').innerText = data.username || "unknown";
-            
+            if(document.getElementById("profile-display-name")) document.getElementById("profile-display-name").innerText = data.username || "unknown";
+            if(document.getElementById("sub-name-label")) document.getElementById("sub-name-label").innerText = data.username || "unknown";
             if (isItMe && data.username) {
                 checkAdminStatus(data.username);
             }
         } else {
-            console.warn("Запись пользователя вернула null.");
-            if(document.getElementById('profile-display-name')) document.getElementById('profile-display-name').innerText = "New User";
-            if(document.getElementById('sub-name-label')) document.getElementById('sub-name-label').innerText = "id: " + uid;
+            if(document.getElementById("profile-display-name")) document.getElementById("profile-display-name").innerText = "New User";
+            if(document.getElementById("sub-name-label")) document.getElementById("sub-name-label").innerText = "id: " + uid;
         }
     }).catch(err => {
-        console.error("Критическая ошибка функции loadUserProfileData:", err);
+        console.error(err);
     });
 }
 
 function checkAdminStatus(username) {
-    console.log("Проверка прав администратора для никнейма:", username);
-    db.ref('admins/' + username).once('value').then(snapshot => {
-        const isAdminButton = document.getElementById('admin-panel-btn');
+    db.ref("admins/" + username).once("value").then(snapshot => {
+        const isAdminButton = document.getElementById("admin-panel-btn");
         if (snapshot.exists() && snapshot.val() === true) {
-            console.log("Доступ разрешен! Пользователь является администратором.");
-            if (isAdminButton) isAdminButton.style.display = 'block'; 
+            if (isAdminButton) isAdminButton.style.display = "block"; 
         } else {
-            console.log("Доступ ограничен. Это аккаунт обычного игрока.");
-            if (isAdminButton) isAdminButton.style.display = 'none';  
+            if (isAdminButton) isAdminButton.style.display = "none";  
         }
     }).catch(err => {
-        console.error("Ошибка при запросе к ветке /admins/:", err);
+        console.error(err);
     });
 }
 
 function toggleSearchDropdown() {
-    const drop = document.getElementById('search-dropdown');
-    if(drop) drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
+    const drop = document.getElementById("search-dropdown");
+    if(drop) drop.style.display = drop.style.display === "block" ? "none" : "block";
 }
 
 function searchUserInDB() {
-    const query = document.getElementById('search-input').value.trim();
-    const resContainer = document.getElementById('search-results-container');
+    const query = document.getElementById("search-input").value.trim();
+    const resContainer = document.getElementById("search-results-container");
     if (!query || !resContainer) return;
 
-    db.ref('users').orderByChild('username').equalTo(query).once('value').then(snapshot => {
-        resContainer.innerHTML = '';
-        resContainer.style.display = 'block';
+    db.ref("users").orderByChild("username").equalTo(query).once("value").then(snapshot => {
+        resContainer.innerHTML = "";
+        resContainer.style.display = "block";
 
         if (!snapshot.exists()) {
-            resContainer.innerHTML = '<p style="color:var(--text-muted); font-size:0.8rem; padding:5px;">User not found</p>';
+            resContainer.innerText = "User not found";
             return;
         }
 
         snapshot.forEach(child => {
             const userKey = child.key;
             const userData = child.val();
-            resContainer.innerHTML += '<div class="results-box-search"><div class="found-user-row" onclick="viewTargetUser(\'' + userKey + '\')"><span>👤 ' + userData.username + '</span><span style="color:var(--accent-lime)">Open →</span></div></div>';
+            const row = document.createElement("div");
+            row.className = "results-box-search";
+            row.innerHTML = "<div class='found-user-row'><span>👤 " + userData.username + "</span><span style='color:var(--accent-lime)'>Open →</span></div>";
+            row.onclick = function() { viewTargetUser(userKey); };
+            resContainer.appendChild(row);
         });
     });
 }
 
 function viewTargetUser(uid) {
     loadUserProfileData(uid, false);
-    if(document.getElementById('search-dropdown')) document.getElementById('search-dropdown').style.display = 'none';
-    if(document.getElementById('search-input')) document.getElementById('search-input').value = '';
+    if(document.getElementById("search-dropdown")) document.getElementById("search-dropdown").style.display = "none";
+    if(document.getElementById("search-input")) document.getElementById("search-input").value = "";
 }
 
 function returnToOwnProfile() {
@@ -122,36 +114,36 @@ function returnToOwnProfile() {
 }
 
 function switchAccountTab(element) {
-    const tabs = document.querySelectorAll('#account-tabs-container .tab-item');
-    tabs.forEach(t => t.classList.remove('active'));
-    element.classList.add('active');
+    const tabs = document.querySelectorAll("#account-tabs-container .tab-item");
+    tabs.forEach(t => t.classList.remove("active"));
+    element.classList.add("active");
 }
 
 function switchPresetTab(type, element) {
-    const tabs = document.querySelectorAll('#preset-tabs-container .tab-item');
+    const tabs = document.querySelectorAll("#preset-tabs-container .tab-item");
     tabs.forEach(t => t.classList.remove('active'));
     element.classList.add('active');
 
-    const mainTitle = document.getElementById('workspace-dynamic-title');
-    const agentsLabel = document.getElementById('agents-block-label');
-    const enginesLabel = document.getElementById('engines-block-label');
-    const actionBtn = document.getElementById('main-action-node-btn');
+    const mainTitle = document.getElementById("workspace-dynamic-title");
+    const agentsLabel = document.getElementById("agents-block-label");
+    const enginesLabel = document.getElementById("engines-block-label");
+    const actionBtn = document.getElementById("main-action-node-btn");
     if(!mainTitle) return;
 
-    if (type === 'roster') {
-        mainTitle.innerHTML = 'мой акк <button class="edit-icon">✏️</button>';
-        if(agentsLabel) agentsLabel.innerText = 'Account agents';
-        if(enginesLabel) enginesLabel.innerText = 'Account engines';
-        if(actionBtn) actionBtn.innerText = 'Manage agents';
-    } else if (type === 'preset1') {
-        mainTitle.innerHTML = 'Preset 1 <button class="edit-icon">✏️</button>';
-        if(agentsLabel) agentsLabel.innerText = 'Preset agents';
-        if(enginesLabel) enginesLabel.innerText = 'Preset engines';
-        if(actionBtn) actionBtn.innerText = 'Manage preset';
-    } else if (type === 'preset2') {
-        mainTitle.innerHTML = 'Preset 2 <button class="edit-icon">✏️</button>';
-        if(agentsLabel) agentsLabel.innerText = 'Preset agents';
-        if(enginesLabel) enginesLabel.innerText = 'Preset engines';
-        if(actionBtn) actionBtn.innerText = 'Manage preset';
+    if (type === "roster") {
+        mainTitle.innerHTML = "мой акк <button class='edit-icon'>✏️</button>";
+        if(agentsLabel) agentsLabel.innerText = "Account agents";
+        if(enginesLabel) enginesLabel.innerText = "Account engines";
+        if(actionBtn) actionBtn.innerText = "Manage agents";
+    } else if (type === "preset1") {
+        mainTitle.innerHTML = "Preset 1 <button class='edit-icon'>✏️</button>";
+        if(agentsLabel) agentsLabel.innerText = "Preset agents";
+        if(enginesLabel) enginesLabel.innerText = "Preset engines";
+        if(actionBtn) actionBtn.innerText = "Manage preset";
+    } else if (type === "preset2") {
+        mainTitle.innerHTML = "Preset 2 <button class='edit-icon'>✏️</button>";
+        if(agentsLabel) agentsLabel.innerText = "Preset agents";
+        if(enginesLabel) enginesLabel.innerText = "Preset engines";
+        if(actionBtn) actionBtn.innerText = "Manage preset";
     }
 }
