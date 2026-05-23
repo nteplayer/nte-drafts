@@ -175,6 +175,9 @@
             text-align: center;
             margin-top: 10px;
             display: none;
+            background: rgba(255, 59, 48, 0.1);
+            padding: 8px;
+            border-radius: 6px;
         }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -225,6 +228,7 @@
 </div>
 
 <script>
+// Исправленный конфиг с точным оригинальным ключом
 const firebaseConfig = { 
     apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx_JXcTP4", 
     authDomain: "nte-tournaments.firebaseapp.com", 
@@ -239,20 +243,20 @@ if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); };
 const auth = firebase.auth();
 const db = firebase.database();
 
-let isSignUpMode = false; // По умолчанию режим Входа (Login)
+let isSignUpMode = false;
 
-// Проверяем, если юзер уже вошел — сразу кидаем его в профиль
+// Если юзер вошел — кидаем на profile.html
 auth.onAuthStateChanged(function(user) {
     if (user) {
-        window.location.href = "iprofile.html";
+        window.location.href = "profile.html";
     }
 });
 
 function redirectToMain() {
-    window.location.href = "iprofile.html";
+    window.location.href = "profile.html";
 }
 
-// Переключение режимов Вход / Регистрация
+// Переключение Вход / Регистрация
 function toggleAuthMode(signUp) {
     isSignUpMode = signUp;
     const title = document.getElementById("auth-title");
@@ -281,7 +285,7 @@ function toggleAuthMode(signUp) {
     }
 }
 
-// Обработка отправки формы
+// Обработка формы
 function handleAuthSubmit(event) {
     event.preventDefault();
     const email = document.getElementById("auth-email").value.trim();
@@ -291,14 +295,12 @@ function handleAuthSubmit(event) {
     errorBox.style.display = "none";
 
     if (isSignUpMode) {
-        // РЕГИСТРАЦИЯ
         const username = document.getElementById("reg-username").value.trim();
         if(!username) return;
 
         auth.createUserWithEmailAndPassword(email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                // Сразу записываем никнейм и структуру в базу данных
                 return db.ref("users/" + user.uid).set({
                     username: username,
                     accounts: {
@@ -314,17 +316,16 @@ function handleAuthSubmit(event) {
                 });
             })
             .then(() => {
-                window.location.href = "iprofile.html";
+                window.location.href = "profile.html";
             })
             .catch((error) => {
                 errorBox.innerText = error.message;
                 errorBox.style.display = "block";
             });
     } else {
-        // ВХОД
         auth.signInWithEmailAndPassword(email, password)
             .then(() => {
-                window.location.href = "iprofile.html";
+                window.location.href = "profile.html";
             })
             .catch((error) => {
                 errorBox.innerText = error.message;
