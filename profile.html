@@ -68,7 +68,6 @@
             font-weight: bold;
             margin-top: 5px;
         }
-        /* Стили для плашки с результатами поиска */
         .search-results-box {
             margin-top: 15px;
             background: #0c0d12;
@@ -86,6 +85,11 @@
         }
         .search-item:last-child { border-bottom: none; }
         .search-item:hover { color: var(--accent-lime); }
+
+        .agents-grid .agent-slot:first-child {
+            border: 1px solid var(--accent-lime);
+            box-shadow: 0 0 10px rgba(212, 249, 0, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -110,4 +114,78 @@
 
             <div class="profile-subnav">
                 <button class="active-tab" id="btn-roster" onclick="switchProfileTab('roster')">Roster</button>
-                <button id="btn-presets" onclick="switchProfile
+                <button id="btn-presets" onclick="switchProfileTab('presets')">Presets (Preset 1 / Preset 2)</button>
+            </div>
+
+            <div class="profile-grid">
+                
+                <div class="left-column">
+                    <div class="content-card">
+                        <div class="user-meta-box">
+                            <div class="user-avatar" id="avatar-letters">NTE</div>
+                            <div>
+                                <h3 style="margin: 0;" id="profile-username">Loading...</h3>
+                                <div class="badge-lime" id="profile-status">Account Verified</div>
+                            </div>
+                        </div>
+                        <button id="back-to-my-profile" style="display:none; margin-top:15px; padding:8px 12px; width:auto; font-size:0.85rem;" onclick="loadMyProfile()">Back to my profile</button>
+                    </div>
+
+                    <div class="content-card" id="agents-section">
+                        <h3 id="agents-title">Account Agents</h3>
+                        <div class="agents-grid" id="agents-display-grid">
+                            <div class="agent-slot"></div>
+                            <div class="agent-slot"></div>
+                            <div class="agent-slot"></div>
+                            <div class="agent-slot"></div>
+                            <div class="agent-slot"></div>
+                            <div class="agent-slot"></div>
+                            <div class="agent-slot"></div>
+                            <div class="agent-slot"></div>
+                            <div class="agent-slot"></div>
+                            <div class="agent-slot"></div>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h3>Linked Game Accounts</h3>
+                        <table class="tournament-table">
+                            <thead>
+                                <tr>
+                                    <th>Account Label</th>
+                                    <th>In-Game UID / Name</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><b>Main Account</b></td>
+                                    <td id="table-uid">—</td>
+                                    <td style="color: var(--accent-lime)">Primary</td>
+                                </tr>
+                                <tr>
+                                    <td>Account 2</td>
+                                    <td>—</td>
+                                    <td style="color: var(--text-muted)">Backup</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    
+                    <div class="content-card">
+                        <h3>Search User</h3>
+                        <input type="text" id="search-input" placeholder="Enter exact username...">
+                        <button style="padding: 10px;" onclick="searchUser()">Search DB</button>
+                        
+                        <div id="search-results" class="search-results-box" style="display: none;"></div>
+                    </div>
+
+                    <div class="content-card">
+                        <h3>Calculate Costs</h3>
+                        <div style="font-size: 1.5rem; font-weight: bold; margin: 15px 0; color: var(--accent-lime)">
+                            Cost: <span id="calc-cost-display">0</span>
+                        </div>
+                        <button style="padding: 10px;" onclick="
