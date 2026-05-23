@@ -3,87 +3,700 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShiyuCup - Gateway</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <title>SHIYU OUP PANEL</title>
+    <style>
+        :root {
+            --bg-main: #0a0a0a;
+            --bg-card: #111111;
+            --bg-sidebar: #0f0f0f;
+            --bg-tab-inactive: #1a1a1a;
+            --text-main: #ffffff;
+            --text-muted: #757575;
+            --accent-yellow: #e5fe02;
+            --border-color: #222222;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* БОКОВОЕ МЕНЮ */
+        .sidebar {
+            width: 220px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .logo-area {
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+            padding-left: 10px;
+        }
+        .logo-area span {
+            color: #ff3b30;
+            font-size: 0.7rem;
+            vertical-align: super;
+            margin-left: 3px;
+        }
+
+        .sidebar-btn {
+            background: transparent;
+            color: #ffffff;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        .sidebar-btn:hover { background: #1a1a1a; }
+        .sidebar-btn.active {
+            background-color: var(--accent-yellow);
+            color: #000000;
+        }
+
+        /* ОСНОВНОЙ КОНТЕЙНЕР */
+        .main-container {
+            flex-grow: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ШАПКА */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+        
+        .user-profile-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .avatar {
+            width: 48px;
+            height: 48px;
+            background: #252525;
+            border-radius: 50%;
+            border: 2px solid #333;
+        }
+        .user-titles {
+            display: flex;
+            flex-direction: column;
+        }
+        .username-txt {
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .uid-txt {
+            font-size: 0.75rem;
+            color: var(--accent-yellow);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* ПОИСК */
+        .search-wrapper { position: relative; }
+        .search-btn {
+            background: #141414;
+            color: #fff;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .search-dropdown {
+            position: absolute;
+            top: 40px; right: 0;
+            background: #161616;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 260px;
+            display: none;
+            z-index: 100;
+            padding: 10px;
+        }
+        .search-dropdown input {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            outline: none;
+        }
+        .search-dropdown input:focus { border-color: var(--accent-yellow); }
+        .search-results { max-height: 180px; overflow-y: auto; }
+        .search-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #222;
+        }
+        .search-row:hover { background: #222; }
+
+        .back-btn {
+            display: none;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            align-self: flex-start;
+        }
+
+        /* ЭКРАНЫ */
+        .screen-content { display: none; }
+        .screen-content.active-screen { display: block; }
+
+        /* ВЕРХНЯЯ ПАНЕЛЬ ТАБОВ */
+        .tabs-wrapper-block {
+            background: #121212;
+            border-radius: 14px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .tabs-inner-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tabs-side-label {
+            width: 100px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: right;
+            font-weight: bold;
+        }
+        .tabs-list-items {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-node {
+            padding: 6px 16px;
+            background: var(--bg-tab-inactive);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaaaaa;
+            user-select: none;
+            transition: all 0.15s ease;
+        }
+        .tab-node.active {
+            background: var(--accent-yellow);
+            color: #000000;
+        }
+        
+        .plus-action-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0 6px;
+            line-height: 1;
+        }
+        .plus-action-btn:hover { color: #fff; }
+
+        /* КОНТЕНТНЫЙ БЛОК */
+        .workspace-panel {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #1a1a1a;
+        }
+        .workspace-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 14px;
+            margin-bottom: 24px;
+        }
+        .workspace-title-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        .trash-delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+        .trash-delete-btn:hover { color: #ff3b30; }
+
+        .content-node-section { margin-bottom: 25px; }
+        .node-section-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .node-title { font-size: 1.1rem; font-weight: bold; }
+        .node-action-btn {
+            background: #1c1c1c;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .node-action-btn:hover { background: #252525; }
+
+        .empty-placeholder {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            background: #161616;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px dashed #282828;
+        }
+
+        .screen-fallback-box {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 50px;
+            text-align: center;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+    </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-    <div class="auth-wrapper">
-        <div class="auth-card">
-            <h2 id="auth-title" style="margin-bottom: 25px;">Sign In</h2>
+
+<div class="sidebar">
+    <div class="logo-area">SHIYU OUP<span>BETA</span></div>
+    <button class="sidebar-btn" onclick="switchMainScreen('home', this)">Home</button>
+    <button class="sidebar-btn active" id="menu-btn-profile" onclick="switchMainScreen('profile', this)">Profile</button>
+    <button class="sidebar-btn" onclick="switchMainScreen('drafts', this)">Drafts</button>
+    <button class="sidebar-btn" onclick="switchMainScreen('tournaments', this)">Tournaments</button>
+    <button class="sidebar-btn" onclick="switchMainScreen('draft_systems', this)">Draft systems</button>
+    <button class="sidebar-btn" onclick="switchMainScreen('news', this)">News</button>
+</div>
+
+<div class="main-container">
+
+    <header>
+        <div class="user-profile-header">
+            <div class="avatar"></div>
+            <div class="user-titles">
+                <span id="profile-display-name" class="username-txt">Loading...</span>
+                <span id="sub-name-label" class="uid-txt">Connecting...</span>
+            </div>
+        </div>
+        <div class="header-controls">
+            <div class="search-wrapper">
+                <button class="search-btn" onclick="toggleSearchDropdown()">Search user &#9662;</button>
+                <div id="search-dropdown" class="search-dropdown">
+                    <input type="text" id="search-input" placeholder="Enter username..." oninput="searchUserInDB()">
+                    <div id="search-results-container" class="search-results"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <button id="back-self-btn" class="back-btn" onclick="returnToOwnProfile()">Back to my profile</button>
+
+    <div id="screen-home" class="screen-content">
+        <div class="screen-fallback-box">
+            <h2>Home Dashboard</h2>
+            <p>Welcome to Shiyu Oup platform workspace.</p>
+        </div>
+    </div>
+
+    <div id="screen-profile" class="screen-content active-screen">
+        <div class="tabs-wrapper-block">
+            <div class="tabs-inner-row">
+                <div class="tabs-side-label">// Accounts</div>
+                <div id="account-tabs-container" class="tabs-list-items"></div>
+                <button class="plus-action-btn" onclick="createNewAccountNode()">+</button>
+            </div>
             
-            <div id="username-field-block" style="display: none;">
-                <label style="display:block; text-align:left; font-size:0.85rem; color:var(--text-muted);">Username</label>
-                <input type="text" id="auth-username" placeholder="Create a nickname...">
+            <div class="tabs-inner-row">
+                <div class="tabs-side-label">// Presets</div>
+                <div id="preset-tabs-container" class="tabs-list-items"></div>
+                <button class="plus-action-btn" onclick="createNewPresetNode()">+</button>
+            </div>
+        </div>
+
+        <div class="workspace-panel">
+            <div class="workspace-title-row">
+                <div class="workspace-title-area">
+                    <span id="workspace-dynamic-title">мой акк</span>
+                    <button class="edit-icon-btn" style="background:none;border:none;color:#555;cursor:pointer;">&#9999;</button>
+                </div>
+                <button class="trash-delete-btn" onclick="deleteCurrentSelectedTab()">🗑️</button>
             </div>
 
-            <label style="display:block; text-align:left; font-size:0.85rem; color:var(--text-muted);">Email</label>
-            <input type="email" id="auth-email" placeholder="name@domain.com">
+            <div class="content-node-section">
+                <div class="node-section-top">
+                    <span id="agents-block-label" class="node-title">Account agents</span>
+                    <button id="main-action-node-btn" class="node-action-btn">Manage agents</button>
+                </div>
+                <div id="agents-content-placeholder" class="empty-placeholder">No active agents configured for this view.</div>
+            </div>
 
-            <label style="display:block; text-align:left; font-size:0.85rem; color:var(--text-muted);">Password</label>
-            <input type="password" id="auth-password" placeholder="••••••••">
-
-            <button id="auth-btn" onclick="handleAuth()">Login</button>
-
-            <div class="auth-toggle">
-                <span id="toggle-text" onclick="toggleAuthMode()">Don't have an account? Register</span>
+            <div class="content-node-section">
+                <div class="node-section-top">
+                    <span id="engines-block-label" class="node-title">Account engines</span>
+                    <button class="node-action-btn">Manage engines</button>
+                </div>
+                <div id="engines-content-placeholder" class="empty-placeholder">No engines connected.</div>
             </div>
         </div>
     </div>
 
-    <script src="js/app.js"></script>
-    <script>
-        let isSignUpMode = false;
+    <div id="screen-drafts" class="screen-content">
+        <div class="screen-fallback-box">
+            <h2>Drafts Area</h2>
+            <p>Your workspace creation drafts are empty.</p>
+        </div>
+    </div>
 
-        function toggleAuthMode() {
-            isSignUpMode = !isSignUpMode;
-            document.getElementById('auth-title').innerText = isSignUpMode ? "Create Account" : "Sign In";
-            document.getElementById('auth-btn').innerText = isSignUpMode ? "Register" : "Login";
-            document.getElementById('toggle-text').innerText = isSignUpMode ? "Already have an account? Sign In" : "Don't have an account? Register";
-            document.getElementById('username-field-block').style.display = isSignUpMode ? "block" : "none";
+    <div id="screen-tournaments" class="screen-content">
+        <div class="screen-fallback-box">
+            <h2>Tournaments</h2>
+            <p>Active grids and match lists.</p>
+        </div>
+    </div>
+
+    <div id="screen-draft_systems" class="screen-content">
+        <div class="screen-fallback-box">
+            <h2>Draft Systems Setup</h2>
+            <p>Configuration panel for draft selection systems.</p>
+        </div>
+    </div>
+
+    <div id="screen-news" class="screen-content">
+        <div class="screen-fallback-box">
+            <h2>Latest News</h2>
+            <p>Platform system updates and patchlogs.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+const firebaseConfig = { 
+    apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx_JXcTP4", 
+    authDomain: "nte-tournaments.firebaseapp.com", 
+    databaseURL: "https://nte-tournaments-7b0e3-default-rtdb.firebaseio.com", 
+    projectId: "nte-tournaments", 
+    storageBucket: "nte-tournaments.appspot.com", 
+    messagingSenderId: "1022034023092", 
+    appId: "1:1022034023092:web:d269068348b24abed93de1" 
+};
+
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); };
+const auth = firebase.auth(); 
+const db = firebase.database();
+
+let currentLoggedUid = null;
+let viewTargetUid = null; 
+
+let currentSelectedAccount = "мой акк"; 
+let currentSelectedPreset = "Roster";
+
+auth.onAuthStateChanged(function(user) { 
+    if (user) { 
+        currentLoggedUid = user.uid; 
+        viewTargetUid = user.uid; 
+        initUserStructureInDB(user.uid);
+    } else { 
+        document.getElementById("profile-display-name").innerText = "Guest Mode"; 
+        document.getElementById("sub-name-label").innerText = "Offline";
+    }
+});
+
+function initUserStructureInDB(uid) {
+    const userRef = db.ref("users/" + uid);
+    userRef.once("value").then(snapshot => {
+        if (!snapshot.exists()) {
+            userRef.set({
+                username: "User_" + uid.substring(0, 5),
+                accounts: {
+                    "мой акк": {
+                        customName: "мой акк",
+                        agentsHtml: "No active agents configured for this view.",
+                        enginesHtml: "No engines connected.",
+                        presets: {
+                            "Roster": { agentsHtml: "Preset is empty.", enginesHtml: "Preset is offline." }
+                        }
+                    }
+                }
+            }).then(() => { loadHeaderAndProfileData(uid, true); });
+        } else {
+            loadHeaderAndProfileData(uid, true);
         }
+    });
+}
 
-        function handleAuth() {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const username = document.getElementById('auth-username').value.trim();
+function loadHeaderAndProfileData(uid, isItMe) { 
+    const backBtn = document.getElementById("back-self-btn");
+    if(backBtn) { backBtn.style.display = isItMe ? "none" : "inline-block"; }
 
-            if (!email || !password) return alert("Please fill in all standard fields.");
+    // Заменено на .once(), чтобы при записи новых табов данные не сбрасывались принудительно
+    db.ref("users/" + uid).once("value").then(function(snapshot) { 
+        const data = snapshot.val(); 
+        if (data) { 
+            document.getElementById("profile-display-name").innerText = data.username || "unknown"; 
+            document.getElementById("sub-name-label").innerText = "id: " + uid.substring(0,8); 
+            
+            renderAccountTabs(data.accounts || {});
+            
+            const currentAccData = data.accounts ? data.accounts[currentSelectedAccount] : null;
+            renderPresetTabs(currentAccData ? currentAccData.presets : {});
+            
+            updateWorkspaceDOM(currentAccData);
+        }
+    }); 
+}
 
-            if (isSignUpMode) {
-                if (!username) return alert("Please choose a username.");
-                
-                // Регистрация нового пользователя
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        return db.ref('users/' + user.uid).set({
-                            username: username,
-                            email: email,
-                            createdAt: firebase.database.ServerValue.TIMESTAMP
-                        });
-                    })
-                    .then(() => {
-                        window.location.href = 'dashboard.html';
-                    })
-                    .catch((error) => alert(error.message));
-            } else {
-                // Вход в аккаунт
-                auth.signInWithEmailAndPassword(email, password)
-                    .then(() => {
-                        window.location.href = 'dashboard.html';
-                    })
-                    .catch((error) => alert(error.message));
+function renderAccountTabs(accountsObj) {
+    const container = document.getElementById("account-tabs-container");
+    container.innerHTML = "";
+    
+    let keys = Object.keys(accountsObj);
+    if(keys.length === 0) return;
+
+    if(!accountsObj[currentSelectedAccount]) {
+        currentSelectedAccount = keys[0];
+    }
+
+    keys.forEach(accName => {
+        const div = document.createElement("div");
+        div.className = "tab-node" + (accName === currentSelectedAccount ? " active" : "");
+        div.textContent = accName;
+        div.onclick = function() {
+            currentSelectedAccount = accName;
+            currentSelectedPreset = "Roster"; 
+            loadHeaderAndProfileData(viewTargetUid, viewTargetUid === currentLoggedUid);
+        };
+        container.appendChild(div);
+    });
+}
+
+function renderPresetTabs(presetsObj) {
+    const container = document.getElementById("preset-tabs-container");
+    container.innerHTML = "";
+    
+    let keys = presetsObj ? Object.keys(presetsObj) : [];
+    
+    if(!keys.includes("Roster")) { keys.unshift("Roster"); }
+    if(!keys.includes(currentSelectedPreset)) { currentSelectedPreset = "Roster"; }
+
+    keys.forEach(presetName => {
+        const div = document.createElement("div");
+        div.className = "tab-node" + (presetName === currentSelectedPreset ? " active" : "");
+        div.textContent = presetName;
+        div.onclick = function() {
+            currentSelectedPreset = presetName;
+            loadHeaderAndProfileData(viewTargetUid, viewTargetUid === currentLoggedUid);
+        };
+        container.appendChild(div);
+    });
+}
+
+function updateWorkspaceDOM(accountData) {
+    const mainTitle = document.getElementById("workspace-dynamic-title");
+    if (mainTitle) mainTitle.textContent = currentSelectedAccount;
+
+    const aBox = document.getElementById("agents-content-placeholder");
+    const eBox = document.getElementById("engines-content-placeholder");
+    
+    const agentsLabel = document.getElementById("agents-block-label");
+    const enginesLabel = document.getElementById("engines-block-label");
+    const actionBtn = document.getElementById("main-action-node-btn");
+
+    if (!accountData) return;
+
+    if (currentSelectedPreset === "Roster") {
+        if(agentsLabel) agentsLabel.textContent = "Account agents";
+        if(enginesLabel) enginesLabel.textContent = "Account engines";
+        if(actionBtn) actionBtn.textContent = "Manage agents";
+        
+        if(aBox) aBox.innerHTML = accountData.agentsHtml || "No active agents configured for this view.";
+        if(eBox) eBox.innerHTML = accountData.enginesHtml || "No engines connected.";
+    } else {
+        if(agentsLabel) agentsLabel.textContent = "Preset agents";
+        if(enginesLabel) enginesLabel.textContent = "Preset engines";
+        if(actionBtn) actionBtn.textContent = "Manage preset";
+        
+        const currentPresetData = accountData.presets ? accountData.presets[currentSelectedPreset] : null;
+        if(aBox) aBox.innerHTML = currentPresetData ? (currentPresetData.agentsHtml || "Preset is empty.") : "Preset agents are empty.";
+        if(eBox) eBox.innerHTML = currentPresetData ? (currentPresetData.enginesHtml || "Preset is offline.") : "Preset engines are offline.";
+    }
+}
+
+/* ИСПРАВЛЕННОЕ СОЗДАНИЕ ПРОФИЛЕЙ И ПРЕСЕТОВ */
+function createNewAccountNode() {
+    if(viewTargetUid !== currentLoggedUid) return alert("You can customize only your own profile!");
+    
+    const name = prompt("Enter new Account name:");
+    if(!name || name.trim() === "") return;
+    
+    const path = "users/" + currentLoggedUid + "/accounts/" + name;
+    db.ref(path).set({
+        customName: name,
+        agentsHtml: "No active agents configured for this view.",
+        enginesHtml: "No engines connected.",
+        presets: {
+            "Roster": { agentsHtml: "Preset is empty.", enginesHtml: "Preset is offline." }
+        }
+    }).then(() => {
+        currentSelectedAccount = name;
+        currentSelectedPreset = "Roster";
+        loadHeaderAndProfileData(currentLoggedUid, true); // Ручной рендер новых вкладок
+    });
+}
+
+function createNewPresetNode() {
+    if(viewTargetUid !== currentLoggedUid) return alert("You can customize only your own profile!");
+    
+    const name = prompt("Enter new Preset name:");
+    if(!name || name.trim() === "") return;
+    
+    const path = "users/" + currentLoggedUid + "/accounts/" + currentSelectedAccount + "/presets/" + name;
+    db.ref(path).set({
+        agentsHtml: "Preset " + name + " agents are empty.",
+        enginesHtml: "Preset " + name + " engines are offline."
+    }).then(() => {
+        currentSelectedPreset = name;
+        loadHeaderAndProfileData(currentLoggedUid, true); // Ручной рендер новых вкладок
+    });
+}
+
+function deleteCurrentSelectedTab() {
+    if(viewTargetUid !== currentLoggedUid) return alert("Action denied!");
+    
+    if(currentSelectedPreset !== "Roster") {
+        if(confirm("Delete preset '" + currentSelectedPreset + "'?")) {
+            db.ref("users/" + currentLoggedUid + "/accounts/" + currentSelectedAccount + "/presets/" + currentSelectedPreset).remove()
+            .then(() => { 
+                currentSelectedPreset = "Roster"; 
+                loadHeaderAndProfileData(currentLoggedUid, true);
+            });
+        }
+    } else {
+        if(currentSelectedAccount === "мой акк") return alert("You cannot delete your main account tab!");
+        if(confirm("Delete account '" + currentSelectedAccount + "' entirely?")) {
+            db.ref("users/" + currentLoggedUid + "/accounts/" + currentSelectedAccount).remove().then(() => {
+                currentSelectedAccount = "мой акк";
+                loadHeaderAndProfileData(currentLoggedUid, true);
+            });
+        }
+    }
+}
+
+function switchMainScreen(screenName, btnElement) {
+    document.querySelectorAll(".sidebar-btn").forEach(btn => btn.classList.remove("active"));
+    btnElement.classList.add("active");
+
+    document.querySelectorAll(".screen-content").forEach(sc => sc.classList.remove("active-screen"));
+    const target = document.getElementById("screen-" + screenName);
+    if(target) target.classList.add("active-screen");
+}
+
+function toggleSearchDropdown() {
+    const drop = document.getElementById("search-dropdown");
+    drop.style.display = drop.style.display === "block" ? "none" : "block";
+}
+
+/* ИСПРАВЛЕННЫЙ КЛИЕНТСКИЙ ПОИСК (РАБОТАЕТ БЕЗ ИНДЕКСОВ FIREBASE RULES) */
+function searchUserInDB() {
+    const query = document.getElementById("search-input").value.trim().toLowerCase();
+    const container = document.getElementById("search-results-container");
+    if(!query) { container.innerHTML = ""; return; }
+
+    // Сканируем всю ветку users и фильтруем совпадения без ошибок бд
+    db.ref("users").once("value").then(snapshot => {
+        container.innerHTML = "";
+        if(!snapshot.exists()) {
+            container.innerHTML = "<div style='padding:8px;color:#555;'>Not found</div>";
+            return;
+        }
+        
+        let found = false;
+        snapshot.forEach(child => {
+            const userData = child.val();
+            const username = userData.username ? userData.username.toLowerCase() : "";
+            
+            if(username.includes(query)) {
+                found = true;
+                const row = document.createElement("div");
+                row.className = "search-row";
+                row.innerHTML = `<span>${userData.username}</span><span style='color:var(--accent-yellow)'>View &rarr;</span>`;
+                row.onclick = function() {
+                    viewTargetUid = child.key;
+                    switchMainScreen('profile', document.getElementById("menu-btn-profile"));
+                    loadHeaderAndProfileData(child.key, false);
+                    document.getElementById("search-dropdown").style.display = "none";
+                };
+                container.appendChild(row);
             }
-        }
-
-        // Если пользователь уже вошел — перенаправляем на дашборд
-        auth.onAuthStateChanged(user => {
-            if (user) window.location.href = 'dashboard.html';
         });
-    </script>
+
+        if(!found) {
+            container.innerHTML = "<div style='padding:8px;color:#555;'>Not found</div>";
+        }
+    });
+}
+
+function returnToOwnProfile() {
+    if(currentLoggedUid) {
+        viewTargetUid = currentLoggedUid;
+        loadHeaderAndProfileData(currentLoggedUid, true);
+    }
+}
+</script>
+
 </body>
 </html>
