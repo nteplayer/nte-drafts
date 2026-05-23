@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NTE Tournaments - Profile</title>
+    <title>NTE - Profile</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -11,75 +10,61 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-    <div class="profile-container">
-        <nav class="nav-links">
-            <a href="dashboard.html">Dashboard</a>
+    <div class="app-wrapper">
+        <aside class="sidebar">
+            <div class="logo-area">Shiyu<span>Cup</span></div>
+            <a href="dashboard.html">Home</a>
+            <a href="profile.html" class="active">Profile</a>
             <a href="draft.html">Drafts</a>
-            <a href="profile.html"><b>Profile</b></a>
             <a href="tournaments.html">Tournaments</a>
             <a href="news.html">News</a>
-        </nav>
-
-        <div class="profile-header">
-            <div class="avatar-mock">NTE</div>
-            <div>
-                <h2><span id="profile-username">Loading...</span></h2>
-                <p style="color: var(--text-muted); margin: 5px 0 0 0;" id="profile-email">email@database.com</p>
+            
+            <div class="hornybox-widget">
+                <h4>HORNY BOX</h4>
+                <p style="font-size:0.75rem; margin:0; color:var(--text-muted)">ДОНАТЬ ВЫГОДНО</p>
             </div>
-        </div>
+        </aside>
 
-        <div class="profile-status-badge" id="profile-role">Standard Competitor</div>
+        <main class="main-content">
+            <div class="content-header">
+                <h2>User Profile</h2>
+                <div style="text-align: right;">
+                    <span id="user-display" style="font-weight:bold; color:var(--accent-lime)">Loading...</span>
+                </div>
+            </div>
 
-        <h3>Your Saved Rosters</h3>
-        <div id="my-rosters-list" class="rosters-grid">
-            <p style="color: var(--text-muted);">Loading your tactical setups...</p>
-        </div>
+            <div class="content-card">
+                <h3>Account Agents (38)</h3>
+                <div class="agents-grid">
+                    <div class="agent-slot" style="border-color: var(--accent-lime); color:#fff">M3</div>
+                    <div class="agent-slot">M0</div>
+                    <div class="agent-slot">M0</div>
+                    <div class="agent-slot">M6</div>
+                    <div class="agent-slot">M2</div>
+                    <div class="agent-slot">M1</div>
+                    <div class="agent-slot">M0</div>
+                    <div class="agent-slot">M3</div>
+                    <div class="agent-slot">M0</div>
+                    <div class="agent-slot">M6</div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h3>Account Engines (0)</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">No engines registered yet.</p>
+            </div>
+        </main>
     </div>
 
     <script src="js/app.js"></script>
     <script>
         auth.onAuthStateChanged(user => {
             if (user) {
-                // 1. Загружаем инфо о пользователе
                 db.ref('users/' + user.uid).once('value').then(snapshot => {
                     const data = snapshot.val();
                     if(data) {
-                        document.getElementById('profile-username').innerText = data.username;
-                        document.getElementById('profile-email').innerText = data.email;
-                        if(data.isCostMaker) {
-                            document.getElementById('profile-role').innerText = "★ Cost Maker / Tournament Admin";
-                            document.getElementById('profile-role').style.borderColor = "var(--neon-purple)";
-                            document.getElementById('profile-role').style.color = "var(--neon-purple)";
-                        }
+                        document.getElementById('user-display').innerText = data.username;
                     }
-                });
-
-                // 2. Загружаем только РОСТЕРЫ этого конкретного игрока
-                db.ref('rosters/' + user.uid).on('value', snapshot => {
-                    const rostersList = document.getElementById('my-rosters-list');
-                    rostersList.innerHTML = '';
-                    
-                    if(!snapshot.exists()) {
-                        rostersList.innerHTML = '<p style="color: var(--text-muted);">You haven\'t created any rosters yet. Go to Dashboard!</p>';
-                        return;
-                    }
-
-                    snapshot.forEach(child => {
-                        const roster = child.val();
-                        rostersList.innerHTML += `
-                            <div class="roster-card">
-                                <h4>${roster.name}</h4>
-                                <div class="roster-slots">
-                                    <span class="slot-badge">C${roster.slots[0]}</span>
-                                    <span class="slot-badge">C${roster.slots[1]}</span>
-                                    <span class="slot-badge">C${roster.slots[2]}</span>
-                                </div>
-                                <div style="margin-top: 10px; font-size: 0.9rem;">
-                                    System Cost: <strong style="color: var(--neon-cyan)">${roster.totalCost}</strong>
-                                </div>
-                            </div>
-                        `;
-                    });
                 });
             } else {
                 window.location.href = 'index.html';
