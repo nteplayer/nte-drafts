@@ -1,0 +1,7 @@
+:root { --bg: #0a0a0a; --card: #111; --accent: #e5fe02; }
+body { background: var(--bg); color: #fff; font-family: sans-serif; display: flex; margin: 0; }
+.sidebar { width: 220px; height: 100vh; padding: 20px; border-right: 1px solid #222; }
+.nav-btn { display: block; padding: 15px; margin-bottom: 10px; background: #111; border-radius: 30px; text-align: center; color: #fff; text-decoration: none; }
+.nav-btn.active { background: var(--accent); color: #000; font-weight: bold; }
+.main-content { flex: 1; padding: 40px; }
+.card { background: var(--card); border: 1px solid #222; padding: 25px; border-radius: 15px; margin-top: 20px; }
