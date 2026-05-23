@@ -2,7 +2,7 @@
     --bg-main: #0c0d12;         /* Глубокий темный фон */
     --bg-sidebar: #14161e;      /* Цвет боковой панели */
     --bg-card: #1a1d26;         /* Цвет блоков и карточек */
-    --accent-lime: #d4f900;     /* Яркий акцент как на скриншоте Shiyu */
+    --accent-lime: #d4f900;     /* Лимонно-зеленый акцент */
     --text-primary: #ffffff;
     --text-muted: #7e8494;
     --border-color: rgba(255, 255, 255, 0.05);
@@ -69,26 +69,11 @@ body {
     border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Активная вкладка (Ярко-лимонная, как на Shiyu) */
+/* Активная вкладка */
 .sidebar a.active {
     background-color: var(--accent-lime);
     color: #000000;
     font-weight: 700;
-}
-
-/* РЕКЛАМНЫЙ БЛОК ХОРНИБОКСА (ВНИЗУ САЙДБАРА) */
-.hornybox-widget {
-    margin-top: auto;
-    background: linear-gradient(135deg, #1e1b10 0%, #0c0d12 100%);
-    border: 1px solid #c9a0dc40;
-    border-radius: 12px;
-    padding: 15px;
-    text-align: center;
-}
-.hornybox-widget h4 {
-    color: #ffd700;
-    margin: 0 0 5px 0;
-    font-size: 0.9rem;
 }
 
 /* ОСНОВНОЙ КОНТЕНТ (СПРАВА) */
@@ -110,6 +95,7 @@ body {
 }
 
 h2 { margin: 0; font-size: 1.8rem; font-weight: 700; }
+h3 { margin-top: 0; font-size: 1.3rem; margin-bottom: 20px; }
 
 /* КАРТОЧКИ И КОНТЕЙНЕРЫ ДЛЯ ФОРМ */
 .content-card {
@@ -157,33 +143,4 @@ button:hover { opacity: 0.9; }
     width: 100%;
     border-collapse: collapse;
 }
-.tournament-table th, .tournament-table td {
-    padding: 16px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-}
-.tournament-table th {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-}
-
-/* СЕТКА АГЕНТОВ (ПЕРСОНАЖЕЙ) */
-.agents-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 10px;
-    margin-top: 20px;
-}
-.agent-slot {
-    aspect-ratio: 1;
-    background-color: #242836;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    font-weight: bold;
-    font-size: 0.8rem;
-}
+.tournament-table th, .tournament
