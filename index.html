@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Draft Platform</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      background: #050505;
+      color: white;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #222;
+      border-radius: 999px;
+    }
+
+    .sidebar-btn {
+      transition: 0.2s;
+    }
+
+    .sidebar-btn:hover {
+      transform: scale(1.02);
+    }
+
+    .card {
+      background: #0f0f0f;
+      border: 1px solid #222;
+      border-radius: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="flex h-screen">
+
+    <!-- SIDEBAR -->
+    <aside class="w-[230px] border-r border-zinc-900 p-4 flex flex-col gap-3 bg-black">
+      <button class="sidebar-btn rounded-full bg-lime-300 text-black py-4 font-black text-lg">
+        Home
+      </button>
+
+      <button class="sidebar-btn rounded-full border border-zinc-800 bg-zinc-950 py-4 font-black text-lg">
+        Profile
+      </button>
+
+      <button class="sidebar-btn rounded-full border border-zinc-800 bg-zinc-950 py-4 font-black text-lg">
+        Drafts
+      </button>
+
+      <button class="sidebar-btn rounded-full border border-zinc-800 bg-zinc-950 py-4 font-black text-lg">
+        Tournaments
+      </button>
+
+      <button class="sidebar-btn rounded-full border border-zinc-800 bg-zinc-950 py-4 font-black text-lg">
+        Draft Systems
+      </button>
+
+      <button class="sidebar-btn rounded-full border border-zinc-800 bg-zinc-950 py-4 font-black text-lg">
+        News
+      </button>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 overflow-y-auto p-6">
+
+      <!-- PROFILE -->
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-5xl font-black">Profile</h1>
+
+          <button class="rounded-full bg-lime-300 text-black px-6 py-3 font-black">
+            Save
+          </button>
+        </div>
+
+        <!-- ACCOUNTS -->
+        <div class="mb-6 flex items-center gap-3 flex-wrap">
+          <button class="rounded-full bg-lime-300 text-black px-5 py-2 font-black">
+            Main Account
+          </button>
+
+          <button class="rounded-full bg-zinc-900 border border-zinc-700 px-5 py-2">
+            Tournament
+          </button>
+
+          <button class="rounded-full border border-zinc-700 px-4 py-2 text-2xl">
+            +
+          </button>
+        </div>
+
+        <!-- PRESETS -->
+        <div class="mb-10 flex items-center gap-3 flex-wrap">
+          <button class="rounded-full bg-lime-300 text-black px-5 py-2 font-black">
+            Preset 1
+          </button>
+
+          <button class="rounded-full bg-zinc-900 border border-zinc-700 px-5 py-2">
+            Preset 2
+          </button>
+
+          <button class="rounded-full border border-zinc-700 px-4 py-2 text-2xl">
+            +
+          </button>
+        </div>
+
+        <!-- AGENTS -->
+        <div class="card p-6 mb-10">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-black">Account Agents</h2>
+
+            <button class="rounded-full border border-zinc-700 px-5 py-2">
+              Manage Agents
+            </button>
+          </div>
+
+          <div class="grid grid-cols-8 gap-4">
+            <div class="h-[100px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+            <div class="h-[100px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+            <div class="h-[100px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+            <div class="h-[100px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+            <div class="h-[100px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+            <div class="h-[100px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+            <div class="h-[100px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+            <div class="h-[100px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+          </div>
+        </div>
+
+        <!-- DRAFTS -->
+        <div class="card p-6 mb-10">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-black">Drafts</h2>
+
+            <button onclick="openDraftModal()" class="rounded-full bg-lime-300 text-black px-5 py-2 font-black">
+              Create Draft
+            </button>
+          </div>
+
+          <div class="grid grid-cols-5 border-b border-zinc-800 pb-4 text-zinc-500 font-bold">
+            <div>Status</div>
+            <div>Type</div>
+            <div>Players</div>
+            <div>Draft System</div>
+            <div>Time</div>
+          </div>
+
+          <div class="py-20 text-center text-zinc-600 text-xl">
+            Drafts not found
+          </div>
+        </div>
+
+        <!-- TOURNAMENTS -->
+        <div class="card p-6 mb-10">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-black">Tournaments</h2>
+          </div>
+
+          <div class="space-y-4">
+            <div class="rounded-2xl border border-zinc-800 bg-zinc-950 p-5 flex items-center justify-between">
+              <div>
+                <div class="text-2xl font-black">Shiyu Cup</div>
+                <div class="text-zinc-500">#Spring #Tournament</div>
+              </div>
+
+              <div class="text-right">
+                <div class="text-zinc-500">Draft System</div>
+                <div class="font-black">SHIYU CUP</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DRAFT SYSTEMS -->
+        <div class="card p-6 mb-10">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-black">Draft Systems</h2>
+
+            <button class="rounded-full bg-lime-300 text-black px-5 py-2 font-black">
+              Create Draft System
+            </button>
+          </div>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-6 gap-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+              <div>
+                <div class="text-2xl font-black">SHIYU CUP</div>
+              </div>
+
+              <div>
+                <div class="text-zinc-500">PHASES</div>
+                <div>20</div>
+              </div>
+
+              <div>
+                <div class="text-zinc-500">BANS</div>
+                <div>4</div>
+              </div>
+
+              <div>
+                <div class="text-zinc-500">MIRRORS</div>
+                <div>0</div>
+              </div>
+
+              <div>
+                <div class="text-zinc-500">UPDATED</div>
+                <div>23.05.2026</div>
+              </div>
+
+              <div class="flex items-center justify-end">
+                <button class="rounded-full border border-zinc-700 px-5 py-2">
+                  Open
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- CREATE DRAFT MODAL -->
+  <div id="draftModal" class="hidden fixed inset-0 bg-black/80 z-50 items-center justify-center p-10">
+    <div class="w-full max-w-[1400px] rounded-[30px] bg-[#0b0b0b] border border-zinc-800 p-8">
+
+      <div class="flex items-center justify-between mb-10">
+        <h2 class="text-4xl font-black">Create Draft</h2>
+
+        <button onclick="closeDraftModal()" class="text-2xl">
+          ✕
+        </button>
+      </div>
+
+      <div class="flex items-center gap-5 mb-10">
+        <select class="bg-zinc-950 border border-zinc-700 rounded-full px-5 py-3">
+          <option>Draft System</option>
+        </select>
+
+        <label class="flex items-center gap-3">
+          <span>Best Of 2</span>
+          <input type="checkbox" />
+        </label>
+      </div>
+
+      <div class="grid grid-cols-3 gap-10">
+
+        <!-- PLAYER 1 -->
+        <div>
+          <input
+            type="text"
+            placeholder="Player 1 nickname"
+            class="w-full rounded-full bg-zinc-950 border border-zinc-700 px-5 py-4 mb-5"
+          />
+
+          <div class="card p-5">
+            <div class="text-2xl font-black mb-5">
+              Player 1 Roster
+            </div>
+
+            <div class="grid grid-cols-4 gap-3">
+              <div class="h-[90px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+              <div class="h-[90px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+              <div class="h-[90px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+              <div class="h-[90px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VS -->
+        <div class="flex items-center justify-center text-6xl font-black text-lime-300">
+          VS
+        </div>
+
+        <!-- PLAYER 2 -->
+        <div>
+          <input
+            type="text"
+            placeholder="Player 2 nickname"
+            class="w-full rounded-full bg-zinc-950 border border-zinc-700 px-5 py-4 mb-5"
+          />
+
+          <div class="card p-5">
+            <div class="text-2xl font-black mb-5">
+              Player 2 Roster
+            </div>
+
+            <div class="grid grid-cols-4 gap-3">
+              <div class="h-[90px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+              <div class="h-[90px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+              <div class="h-[90px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+              <div class="h-[90px] rounded-2xl bg-zinc-900 border border-zinc-800"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openDraftModal() {
+      document.getElementById('draftModal').classList.remove('hidden')
+      document.getElementById('draftModal').classList.add('flex')
+    }
+
+    function closeDraftModal() {
+      document.getElementById('draftModal').classList.add('hidden')
+      document.getElementById('draftModal').classList.remove('flex')
+    }
+  </script>
+</body>
+</html>
