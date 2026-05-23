@@ -3,87 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShiyuCup - Gateway</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <title>SHIYU OUP PANEL - AUTH</title>
+    <style>
+        :root {
+            --bg-main: #0a0a0a;
+            --bg-card: #111111;
+            --bg-sidebar: #0f0f0f;
+            --text-main: #ffffff;
+            --text-muted: #757575;
+            --accent-yellow: #e5fe02;
+            --border-color: #222222;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* БОКОВОЕ МЕНЮ */
+        .sidebar {
+            width: 220px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .logo-area {
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+            padding-left: 10px;
+        }
+        .logo-area span {
+            color: #ff3b30;
+            font-size: 0.7rem;
+            vertical-align: super;
+            margin-left: 3px;
+        }
+
+        .sidebar-btn {
+            background: transparent;
+            color: #ffffff;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            opacity: 0.6;
+        }
+        .sidebar-btn:hover { background: #1a1a1a; opacity: 1; }
+
+        /* ОСНОВНОЙ КОНТЕЙНЕР */
+        .main-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        /* КАРТОЧКА АВТОРИЗАЦИИ */
+        .auth-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .auth-title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .auth-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            background-color: #000000;
+            border: 1px solid var(--border-color);
+            color: #ffffff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent-yellow);
+        }
+
+        /* КНОПКИ */
+        .submit-btn {
+            background-color: var(--accent-yellow);
+            color: #000000;
+            border: none;
+            padding: 14px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .submit-btn:hover {
+            background-color: #cbf002;
+        }
+
+        /* ССЫЛКА ПЕРЕКЛЮЧЕНИЯ ВХОД/РЕГИСТРАЦИЯ */
+        .switch-auth-mode {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .switch-auth-mode a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .switch-auth-mode a:hover {
+            text-decoration: underline;
+        }
+
+        /* СООБЩЕНИЯ ОБ ОШИБКАХ */
+        .error-message {
+            color: #ff3b30;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-    <div class="auth-wrapper">
-        <div class="auth-card">
-            <h2 id="auth-title" style="margin-bottom: 25px;">Sign In</h2>
-            
-            <div id="username-field-block" style="display: none;">
-                <label style="display:block; text-align:left; font-size:0.85rem; color:var(--text-muted);">Username</label>
-                <input type="text" id="auth-username" placeholder="Create a nickname...">
+
+<div class="sidebar">
+    <div class="logo-area">SHIYU OUP<span>BETA</span></div>
+    <button class="sidebar-btn" onclick="redirectToMain()">Home</button>
+    <button class="sidebar-btn" onclick="redirectToMain()">Profile</button>
+    <button class="sidebar-btn" onclick="redirectToMain()">Drafts</button>
+    <button class="sidebar-btn" onclick="redirectToMain()">Tournaments</button>
+    <button class="sidebar-btn" onclick="redirectToMain()">Draft systems</button>
+    <button class="sidebar-btn" onclick="redirectToMain()">News</button>
+</div>
+
+<div class="main-container">
+    <div class="auth-card">
+        <h2 id="auth-title" class="auth-title">Sign In</h2>
+        <p id="auth-subtitle" class="auth-subtitle">Welcome back! Please enter your details.</p>
+
+        <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+            <div class="form-group" id="username-group" style="display: none;">
+                <label for="reg-username">Username</label>
+                <input type="text" id="reg-username" placeholder="Enter your username">
             </div>
 
-            <label style="display:block; text-align:left; font-size:0.85rem; color:var(--text-muted);">Email</label>
-            <input type="email" id="auth-email" placeholder="name@domain.com">
-
-            <label style="display:block; text-align:left; font-size:0.85rem; color:var(--text-muted);">Password</label>
-            <input type="password" id="auth-password" placeholder="••••••••">
-
-            <button id="auth-btn" onclick="handleAuth()">Login</button>
-
-            <div class="auth-toggle">
-                <span id="toggle-text" onclick="toggleAuthMode()">Don't have an account? Register</span>
+            <div class="form-group">
+                <label for="auth-email">Email Address</label>
+                <input type="email" id="auth-email" required placeholder="example@domain.com">
             </div>
-        </div>
+
+            <div class="form-group">
+                <label for="auth-password">Password</label>
+                <input type="password" id="auth-password" required placeholder="••••••••">
+            </div>
+
+            <button type="submit" id="submit-button" class="submit-btn">Login</button>
+            <div id="error-box" class="error-message"></div>
+        </form>
+
+        <p class="switch-auth-mode" id="switch-text">
+            Don't have an account? <a onclick="toggleAuthMode(true)">Sign Up</a>
+        </p>
     </div>
+</div>
 
-    <script src="js/app.js"></script>
-    <script>
-        let isSignUpMode = false;
+<script>
+const firebaseConfig = { 
+    apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx_JXcTP4", 
+    authDomain: "nte-tournaments.firebaseapp.com", 
+    databaseURL: "https://nte-tournaments-7b0e3-default-rtdb.firebaseio.com", 
+    projectId: "nte-tournaments", 
+    storageBucket: "nte-tournaments.appspot.com", 
+    messagingSenderId: "1022034023092", 
+    appId: "1:1022034023092:web:d269068348b24abed93de1" 
+};
 
-        function toggleAuthMode() {
-            isSignUpMode = !isSignUpMode;
-            document.getElementById('auth-title').innerText = isSignUpMode ? "Create Account" : "Sign In";
-            document.getElementById('auth-btn').innerText = isSignUpMode ? "Register" : "Login";
-            document.getElementById('toggle-text').innerText = isSignUpMode ? "Already have an account? Sign In" : "Don't have an account? Register";
-            document.getElementById('username-field-block').style.display = isSignUpMode ? "block" : "none";
-        }
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); };
+const auth = firebase.auth();
+const db = firebase.database();
 
-        function handleAuth() {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const username = document.getElementById('auth-username').value.trim();
+let isSignUpMode = false; // По умолчанию режим Входа (Login)
 
-            if (!email || !password) return alert("Please fill in all standard fields.");
+// Проверяем, если юзер уже вошел — сразу кидаем его в профиль
+auth.onAuthStateChanged(function(user) {
+    if (user) {
+        window.location.href = "iprofile.html";
+    }
+});
 
-            if (isSignUpMode) {
-                if (!username) return alert("Please choose a username.");
-                
-                // Регистрация нового пользователя
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        const user = userCredential.user;
-                        return db.ref('users/' + user.uid).set({
-                            username: username,
-                            email: email,
-                            createdAt: firebase.database.ServerValue.TIMESTAMP
-                        });
-                    })
-                    .then(() => {
-                        window.location.href = 'dashboard.html';
-                    })
-                    .catch((error) => alert(error.message));
-            } else {
-                // Вход в аккаунт
-                auth.signInWithEmailAndPassword(email, password)
-                    .then(() => {
-                        window.location.href = 'dashboard.html';
-                    })
-                    .catch((error) => alert(error.message));
-            }
-        }
+function redirectToMain() {
+    window.location.href = "iprofile.html";
+}
 
-        // Если пользователь уже вошел — перенаправляем на дашборд
-        auth.onAuthStateChanged(user => {
-            if (user) window.location.href = 'dashboard.html';
-        });
-    </script>
+// Переключение режимов Вход / Регистрация
+function toggleAuthMode(signUp) {
+    isSignUpMode = signUp;
+    const title = document.getElementById("auth-title");
+    const subtitle = document.getElementById("auth-subtitle");
+    const usernameGroup = document.getElementById("username-group");
+    const submitBtn = document.getElementById("submit-button");
+    const switchText = document.getElementById("switch-text");
+    const errorBox = document.getElementById("error-box");
+    
+    errorBox.style.display = "none";
+
+    if (isSignUpMode) {
+        title.innerText = "Create Account";
+        subtitle.innerText = "Join us to manage your workspace and team rosters.";
+        usernameGroup.style.display = "flex";
+        document.getElementById("reg-username").required = true;
+        submitBtn.innerText = "Register";
+        switchText.innerHTML = 'Already have an account? <a onclick="toggleAuthMode(false)">Sign In</a>';
+    } else {
+        title.innerText = "Sign In";
+        subtitle.innerText = "Welcome back! Please enter your details.";
+        usernameGroup.style.display = "none";
+        document.getElementById("reg-username").required = false;
+        submitBtn.innerText = "Login";
+        switchText.innerHTML = 'Don\'t have an account? <a onclick="toggleAuthMode(true)">Sign Up</a>';
+    }
+}
+
+// Обработка отправки формы
+function handleAuthSubmit(event) {
+    event.preventDefault();
+    const email = document.getElementById("auth-email").value.trim();
+    const password = document.getElementById("auth-password").value;
+    const errorBox = document.getElementById("error-box");
+    
+    errorBox.style.display = "none";
+
+    if (isSignUpMode) {
+        // РЕГИСТРАЦИЯ
+        const username = document.getElementById("reg-username").value.trim();
+        if(!username) return;
+
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                // Сразу записываем никнейм и структуру в базу данных
+                return db.ref("users/" + user.uid).set({
+                    username: username,
+                    accounts: {
+                        "мой акк": {
+                            customName: "мой акк",
+                            agentsHtml: "No active agents configured for this view.",
+                            enginesHtml: "No engines connected.",
+                            presets: {
+                                "Roster": { agentsHtml: "Preset is empty.", enginesHtml: "Preset is offline." }
+                            }
+                        }
+                    }
+                });
+            })
+            .then(() => {
+                window.location.href = "iprofile.html";
+            })
+            .catch((error) => {
+                errorBox.innerText = error.message;
+                errorBox.style.display = "block";
+            });
+    } else {
+        // ВХОД
+        auth.signInWithEmailAndPassword(email, password)
+            .then(() => {
+                window.location.href = "iprofile.html";
+            })
+            .catch((error) => {
+                errorBox.innerText = error.message;
+                errorBox.style.display = "block";
+            });
+    }
+}
+</script>
+
 </body>
 </html>
