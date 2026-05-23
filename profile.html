@@ -2,65 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SHIYU OUP PANEL - PROFILE</title>
+    <title>SHIYU OUP - PROFILE</title>
     <style>
-        body { background-color: #0a0a0a; color: #fff; font-family: sans-serif; padding: 20px; }
-        .user-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { padding: 10px 20px; background: #1a1a1a; border-radius: 20px; cursor: pointer; }
-        .tab.active { background: #e5fe02; color: #000; font-weight: bold; }
-        .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 12px; margin-bottom: 15px; }
-        .btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; background: #222; color: #fff; }
+        body { background: #0a0a0a; color: #fff; font-family: sans-serif; padding: 20px; }
+        .tab { display: inline-block; padding: 10px 20px; background: #1a1a1a; margin-right: 10px; border-radius: 20px; cursor: pointer; }
+        .tab.active { background: #e5fe02; color: #000; }
+        .card { background: #111; border: 1px solid #222; padding: 20px; border-radius: 12px; margin-top: 20px; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-
-<div id="profile-view" style="display: none;">
-    <div class="user-header">
-        <h2 id="username">User</h2>
-    </div>
-    <div class="tab-bar">
-        <div class="tab active" id="acc-tab">Account 1</div>
-        <div class="tab" id="roster-tab">Roster</div>
-    </div>
-    <div class="card">
-        <h3>Account 1</h3>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <p>Account agents: <span id="agent-count">0</span></p>
-            <button class="btn">Manage agents</button>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-            <p>Account engines: <span id="engine-count">0</span></p>
-            <button class="btn">Manage engines</button>
-        </div>
-    </div>
-</div>
+<h1 id="user">Loading...</h1>
+<div id="tabs"></div>
+<div id="content" class="card"></div>
 
 <script>
-const firebaseConfig = { 
-    apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx__JXcTP4", 
-    authDomain: "nte-tournaments.firebaseapp.com", 
-    databaseURL: "https://nte-tournaments-7b0e3-default-rtdb.firebaseio.com", 
-    projectId: "nte-tournaments", 
-    storageBucket: "nte-tournaments.appspot.com", 
-    messagingSenderId: "1022034023092", 
-    appId: "1:1022034023092:web:d269068348b24abed93de1" 
-};
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-
-firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-        document.getElementById("profile-view").style.display = "block";
-        firebase.database().ref("users/" + user.uid).once("value").then(snap => {
-            const data = snap.val();
-            if (data) document.getElementById("username").innerText = data.username || "User";
+// (Скопируй сюда тот же firebaseConfig из index.html)
+firebase.initializeApp({/*...копируй конфиг...*/});
+firebase.auth().onAuthStateChanged(user => {
+    if(!user) return window.location.href = "index.html";
+    firebase.database().ref("users/" + user.uid).on("value", snap => {
+        const d = snap.val();
+        document.getElementById("user").innerText = d.username;
+        Object.keys(d.accounts).forEach(k => {
+            const t = document.createElement("div");
+            t.className = "tab active"; t.innerText = d.accounts[k].name;
+            document.getElementById("tabs").appendChild(t);
+            document.getElementById("content").innerHTML = `<h3>${d.accounts[k].name}</h3><p>Agents: ${d.accounts[k].agents}</p><p>Engines: ${d.accounts[k].engines}</p>`;
         });
-    } else {
-        window.location.replace("index.html"); // Если не залогинен, кидаем на вход
-    }
+    });
 });
 </script>
 </body>
