@@ -1,25 +1,33 @@
-<script>
-function registerUser() {
-    const email = document.getElementById("email").value;
-    const pass = document.getElementById("pass").value;
-    const username = document.getElementById("username").value;
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>SHIYU OUP - LOGIN</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+    <script>
+        const firebaseConfig = { /* ВСТАВЬ СВОЙ КОНФИГ */ };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
 
-    firebase.auth().createUserWithEmailAndPassword(email, pass)
-        .then(userCredential => {
-            // Инициализация структуры базы данных
-            return firebase.database().ref('users/' + userCredential.user.uid).set({
-                username: username,
-                accounts: {
-                    "account1": {
-                        name: "Account 1",
-                        agents: 0,
-                        engines: 0,
-                        rosters: { "default": "Default Roster" }
-                    }
-                }
-            });
-        })
-        .then(() => window.location.href = "profile.html")
-        .catch(error => console.error(error));
-}
-</script>
+        function registerUser(email, pass, username) {
+            auth.createUserWithEmailAndPassword(email, pass)
+                .then(res => {
+                    // Инициализация структуры базы данных
+                    return db.ref("users/" + res.user.uid).set({
+                        username: username,
+                        accounts: {
+                            "account1": { name: "Account 1", agents: 0, engines: 0 }
+                        }
+                    });
+                })
+                .then(() => window.location.href = "profile.html")
+                .catch(err => alert(err.message));
+        }
+    </script>
+</body>
+</html>
