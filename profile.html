@@ -13,37 +13,30 @@ if (!firebase.apps.length) {
 }
 const auth = firebase.auth();
 const db = firebase.database();
-let currentLoggedUid = "ECajSb2xcCPZkpzSZSCdK9privC2";
+let currentLoggedUid = null;
 
 auth.onAuthStateChanged(user => {
     if (user) {
-        console.log("User authorized in Auth. UID:", user.uid);
+        console.log("Пользователь авторизован. UID:", user.uid);
         currentLoggedUid = user.uid;
+        
+        db.ref('users/' + user.uid).once('value').then(snapshot => {
+            if (snapshot.exists()) {
+                console.log("Данные профиля успешно найдены в БД.");
+                loadUserProfileData(user.uid, true);
+            } else {
+                console.warn("У этого пользователя нет записи в ветке users базы данных.");
+                if(document.getElementById('profile-display-name')) document.getElementById('profile-display-name').innerText = "New User";
+                if(document.getElementById('sub-name-label')) document.getElementById('sub-name-label').innerText = "id: " + user.uid;
+            }
+        }).catch(err => {
+            console.error("Ошибка чтения базы данных:", err);
+            loadUserProfileData(user.uid, true);
+        });
     } else {
-        console.warn("No user session found. Using hardcoded admin UID.");
+        console.warn("Пользователь не авторизован. Перенаправление на главную страницу...");
+        window.location.href = 'index.html';
     }
-    
-    db.ref('users/' + currentLoggedUid).once('value').then(snapshot => {
-        if (!snapshot.exists()) {
-            console.warn("User branch not found. Creating default...");
-            db.ref('users/' + currentLoggedUid).set({
-                username: "DimaRusin",
-                email: "tictacimus1103@mail.ru"
-            }).then(() => {
-                console.log("Profile created successfully.");
-                loadUserProfileData(currentLoggedUid, true);
-            }).catch(dbErr => {
-                console.error("DB Write Error:", dbErr);
-                loadUserProfileData(currentLoggedUid, true);
-            });
-        } else {
-            console.log("User data found in DB.");
-            loadUserProfileData(currentLoggedUid, true);
-        }
-    }).catch(err => {
-        console.error("DB Read Error:", err);
-        loadUserProfileData(currentLoggedUid, true);
-    });
 });
 
 function loadUserProfileData(uid, isItMe) {
@@ -56,7 +49,7 @@ function loadUserProfileData(uid, isItMe) {
     db.ref('users/' + uid).once('value').then(snapshot => {
         const data = snapshot.val();
         if (data) {
-            console.log("Loaded profile data:", data);
+            console.log("Загружены данные профиля:", data);
             if(document.getElementById('profile-display-name')) document.getElementById('profile-display-name').innerText = data.username || "unknown";
             if(document.getElementById('sub-name-label')) document.getElementById('sub-name-label').innerText = data.username || "unknown";
             
@@ -64,28 +57,28 @@ function loadUserProfileData(uid, isItMe) {
                 checkAdminStatus(data.username);
             }
         } else {
-            console.warn("User branch returned null.");
+            console.warn("Запись пользователя вернула null.");
             if(document.getElementById('profile-display-name')) document.getElementById('profile-display-name').innerText = "New User";
             if(document.getElementById('sub-name-label')) document.getElementById('sub-name-label').innerText = "id: " + uid;
         }
     }).catch(err => {
-        console.error("Critical error inside loadUserProfileData:", err);
+        console.error("Критическая ошибка функции loadUserProfileData:", err);
     });
 }
 
 function checkAdminStatus(username) {
-    console.log("Checking admin status for:", username);
+    console.log("Проверка прав администратора для никнейма:", username);
     db.ref('admins/' + username).once('value').then(snapshot => {
         const isAdminButton = document.getElementById('admin-panel-btn');
         if (snapshot.exists() && snapshot.val() === true) {
-            console.log("Access granted for admin!");
+            console.log("Доступ разрешен! Пользователь является администратором.");
             if (isAdminButton) isAdminButton.style.display = 'block'; 
         } else {
-            console.log("Access denied. Standard account.");
+            console.log("Доступ ограничен. Это аккаунт обычного игрока.");
             if (isAdminButton) isAdminButton.style.display = 'none';  
         }
     }).catch(err => {
-        console.error("Error accessing /admins/ node:", err);
+        console.error("Ошибка при запросе к ветке /admins/:", err);
     });
 }
 
@@ -94,7 +87,6 @@ function toggleSearchDropdown() {
     if(drop) drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
 }
 
-// Защищенная от склеивания функция поиска игроков
 function searchUserInDB() {
     const query = document.getElementById('search-input').value.trim();
     const resContainer = document.getElementById('search-results-container');
