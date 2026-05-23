@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SHIYU OUP - Profile</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body>
+<div class="sidebar">
+    <a href="dashboard.html" class="nav-btn">Home</a>
+    <a href="profile.html" class="nav-btn active">Profile</a>
+    <a href="draft.html" class="nav-btn">Drafts</a>
+</div>
+<div class="main-content">
+    <h1 id="user-display">Loading...</h1>
+    <div id="account-container" class="card">
+        <h3>Accounts</h3>
+        <div id="account-list"></div>
+        <button class="tab-btn" onclick="addAccount()">+ Add Account</button>
+    </div>
+</div>
+<script>
+    const db = firebase.database();
+    firebase.auth().onAuthStateChanged(user => {
+        if (!user) return window.location.href = "index.html";
+        db.ref('users/' + user.uid).on('value', snap => {
+            const data = snap.val();
+            document.getElementById('user-display').innerText = data.username;
+            // Логика перебора и рендеринга аккаунтов
+        });
+    });
+    function addAccount() { /* Логика пуша в БД */ }
+</script>
+</body>
+</html>
