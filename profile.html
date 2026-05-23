@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
+    <title>Dashboard</title>
     <style>
         :root {
             --bg-main: #0a0a0a;
@@ -19,14 +19,57 @@
             background-color: var(--bg-main);
             color: var(--text-main);
             font-family: sans-serif;
-            padding: 20px;
+            display: flex;
+            min-height: 100vh;
         }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
+
+        /* БОКОВОЕ МЕНЮ НАВИГАЦИИ */
+        .sidebar {
+            width: 240px;
+            background-color: #0c0c0c;
+            border-right: 1px solid var(--border-color);
+            padding: 25px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-shrink: 0;
         }
-        
-        /* Шапка профиля */
+        .sidebar-btn {
+            background: #141414;
+            color: #ffffff;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        .sidebar-btn:hover {
+            background: #1c1c1c;
+        }
+        .sidebar-btn.active {
+            background-color: var(--accent-yellow);
+            color: #000000;
+        }
+
+        /* ОСНОВНОЙ КОНТЕНЕР СТРАНИЦЫ */
+        .main-content {
+            flex-grow: 1;
+            padding: 25px;
+            max-width: 1100px;
+        }
+
+        /* ГЛАВНЫЕ ВКЛАДКИ НАВИГАЦИИ (ЭКРАНЫ) */
+        .app-screen {
+            display: none;
+        }
+        .app-screen.active-screen {
+            display: block;
+        }
+
+        /* ШАПКА ПРОФИЛЯ */
         header {
             display: flex;
             justify-content: space-between;
@@ -54,38 +97,48 @@
         }
         .sub-username {
             font-size: 0.8rem;
-            color: #e5fe02;
+            color: var(--accent-yellow);
         }
         
+        /* КНОПКА И ВЫПАДАЮЩЕЕ МЕНЮ ПОИСКА */
         .search-box { position: relative; }
         .search-trigger-btn {
             background: #141414;
             color: #fff;
             border: 1px solid var(--border-color);
-            padding: 6px 16px;
+            padding: 8px 18px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 0.85rem;
         }
         .dropdown {
             position: absolute;
-            top: 35px; right: 0;
+            top: 40px; right: 0;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            width: 250px;
+            width: 280px;
             display: none;
-            z-index: 10;
-            padding: 10px;
+            z-index: 100;
+            padding: 12px;
+            box-shadow: 0px 8px 20px rgba(0,0,0,0.5);
         }
         .dropdown input {
             width: 100%;
             background: #0a0a0a;
             border: 1px solid var(--border-color);
             color: #fff;
-            padding: 6px 10px;
-            border-radius: 4px;
+            padding: 8px 12px;
+            border-radius: 6px;
             margin-bottom: 8px;
+            outline: none;
+        }
+        .dropdown input:focus {
+            border-color: var(--accent-yellow);
+        }
+        #search-results-container {
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .back-btn {
@@ -99,7 +152,7 @@
             margin-bottom: 15px;
         }
 
-        /* Контейнер Табов (Accounts и Presets) */
+        /* КОНТЕЙНЕР СУБ-ТАБОВ (Accounts / Presets) */
         .tabs-menu-container {
             background: #111111;
             border-radius: 8px;
@@ -144,7 +197,7 @@
             padding: 0 5px;
         }
 
-        /* Главная рабочая область */
+        /* РАБОЧАЯ ОБЛАСТЬ ПРОФИЛЯ */
         .workspace-box {
             background: var(--bg-card);
             border-radius: 8px;
@@ -208,15 +261,29 @@
             border: 1px dashed #333;
         }
 
+        /* СТИЛИЗАЦИЯ СТРОКИ С НАЙДЕННЫМ ПОЛЬЗОВАТЕЛЕМ */
         .results-box-search {
             display: flex;
             justify-content: space-between;
-            padding: 8px;
+            padding: 10px;
             cursor: pointer;
             font-size: 0.9rem;
             border-bottom: 1px solid var(--border-color);
+            color: #ffffff;
         }
-        .results-box-search:hover { background: #1a1a1a; }
+        .results-box-search:hover { 
+            background: #222222; 
+        }
+        
+        /* ДЕМО СТИЛИ ДЛЯ ОСТАЛЬНЫХ ЭКРАНОВ */
+        .placeholder-screen-box {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -224,73 +291,14 @@
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <div class="user-info-block">
-            <div class="avatar-placeholder"></div>
-            <div class="user-names">
-                <span id="profile-display-name" class="main-username">мой акк</span>
-                <span id="sub-name-label" class="sub-username">dima_rusin</span>
-            </div>
-        </div>
-        <div class="search-box">
-            <button class="search-trigger-btn" onclick="toggleSearchDropdown()">Search user &#9662;</button>
-            <div id="search-dropdown" class="dropdown">
-                <input type="text" id="search-input" placeholder="Enter username..." oninput="searchUserInDB()">
-                <div id="search-results-container"></div>
-            </div>
-        </div>
-    </header>
-
-    <button id="back-self-btn" class="back-btn" onclick="returnToOwnProfile()">Back to my profile</button>
-
-    <div class="tabs-menu-container">
-        <div class="tab-row" id="account-tabs-container">
-            <div class="row-label">// Accounts</div>
-            <div class="tab-item active" onclick="switchAccountTab('acc1', this)">мой акк</div>
-            <div class="tab-item" onclick="switchAccountTab('acc2', this)">Account 2</div>
-            <div class="tab-item" onclick="switchAccountTab('acc3', this)">Account 3</div>
-            <button class="add-tab-btn" onclick="createNewAccountInTabs()">+</button>
-        </div>
-        <div class="tab-row" id="preset-tabs-container">
-            <div class="row-label">// Presets</div>
-            <div class="tab-item active" onclick="switchPresetTab('roster', this)">Roster</div>
-            <div class="tab-item" onclick="switchPresetTab('preset1', this)">Preset 1</div>
-            <div class="tab-item" onclick="switchPresetTab('preset2', this)">Preset 2</div>
-            <button class="add-tab-btn" onclick="createNewPresetInTabs()">+</button>
-        </div>
-    </div>
-
-    <div class="workspace-box" id="main-workspace-box">
-        <div class="workspace-header">
-            <div class="title-with-edit">
-                <span id="workspace-dynamic-title">мой акк</span>
-                <button class="edit-icon-btn">&#9999;</button>
-            </div>
-            <a href="admin.html" id="admin-panel-btn" class="admin-panel-link">Admin Panel</a>
-        </div>
-
-        <div class="info-section">
-            <div class="section-top-bar">
-                <span id="agents-block-label" class="section-title">Account agents</span>
-                <button id="main-action-node-btn" class="manage-btn">Manage agents</button>
-            </div>
-            <div id="agents-content-placeholder" class="empty-placeholder-text">No active agents configured for this view.</div>
-        </div>
-
-        <div class="info-section">
-            <div class="section-top-bar">
-                <span id="engines-block-label" class="section-title">Account engines</span>
-                <button class="manage-btn">Manage engines</button>
-            </div>
-            <div id="engines-content-placeholder" class="empty-placeholder-text">No engines connected.</div>
-        </div>
-    </div>
+<div class="sidebar">
+    <button class="sidebar-btn" onclick="switchMainScreen('home', this)">Home</button>
+    <button class="sidebar-btn active" onclick="switchMainScreen('profile', this)">Profile</button>
+    <button class="sidebar-btn" onclick="switchMainScreen('drafts', this)">Drafts</button>
+    <button class="sidebar-btn" onclick="switchMainScreen('tournaments', this)">Tournaments</button>
 </div>
 
-<script>
-// Твой актуальный конфиг Realtime Database
-const firebaseConfig = { 
-    apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx_JXcTP4", 
-    authDomain: "nte-tournaments.firebaseapp.com", 
-    databaseURL:
+<div class="main-content">
+
+    <div id="screen-home" class="app-screen">
+        <div class="placeholder-screen-box">
