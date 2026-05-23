@@ -100,7 +100,7 @@
             margin-bottom: 15px;
         }
 
-        /* Двухуровневые табы */
+        /* Меню табов */
         .tabs-menu-container {
             background: #111111;
             border-radius: 8px;
@@ -217,7 +217,7 @@
             border: 1px dashed #333;
         }
 
-        /* Поиск */
+        /* Блок поиска пользователей */
         .found-user-row {
             display: flex;
             justify-content: space-between;
@@ -303,7 +303,29 @@ const firebaseConfig = { apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx_JXcTP4", authD
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); };
 const auth = firebase.auth(); const db = firebase.database(); let currentLoggedUid = null;
 
-auth.onAuthStateChanged(function(user) { if (user) { currentLoggedUid = user.uid; db.ref("users/" + user.uid).once("value").then(function(snapshot) { if (snapshot.exists()) { loadUserProfileData(user.uid, true); } else { if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = "New User"; }; if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = "id: " + user.uid; }; }; }).catch(function(err) { loadUserProfileData(user.uid, true); }); } else { window.location.href = "index.html"; }; });
+// ИСПРАВЛЕНО: Даём Firebase время на проверку авторизации, убран моментальный ложный редирект
+auth.onAuthStateChanged(function(user) { 
+    if (user) { 
+        currentLoggedUid = user.uid; 
+        db.ref("users/" + user.uid).once("value").then(function(snapshot) { 
+            if (snapshot.exists()) { 
+                loadUserProfileData(user.uid, true); 
+            } else { 
+                if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = "New User"; }; 
+                if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = "id: " + user.uid; }; 
+            }; 
+        }).catch(function(err) { 
+            loadUserProfileData(user.uid, true); 
+        }); 
+    } else { 
+        // Если через 1.5 секунды сессия так и не подтвердилась — отправляем на авторизацию
+        setTimeout(function() {
+            if (!auth.currentUser) {
+                window.location.href = "index.html"; 
+            }
+        }, 1500);
+    }; 
+});
 
 function loadUserProfileData(uid, isItMe) { if (isItMe) { if(document.getElementById("back-self-btn")) { document.getElementById("back-self-btn").style.display = "none"; }; } else { if(document.getElementById("back-self-btn")) { document.getElementById("back-self-btn").style.display = "inline-block"; }; }; db.ref("users/" + uid).once("value").then(function(snapshot) { const data = snapshot.val(); if (data) { if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = data.username || "unknown"; }; if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = data.username || "unknown"; }; if (isItMe && data.username) { checkAdminStatus(data.username); }; } else { if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = "New User"; }; if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = "id: " + uid; }; }; }).catch(function(err) { console.error(err); }); };
 
