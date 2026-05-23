@@ -17,18 +17,12 @@
             <a href="profile.html" class="active">Profile</a>
             <a href="draft.html">Drafts</a>
             <a href="tournaments.html">Tournaments</a>
-            <a href="news.html">News</a>
-            
-            <div class="hornybox-widget">
-                <h4>HORNY BOX</h4>
-                <p style="font-size:0.75rem; margin:0; color:var(--text-muted)">ДОНАТЬ ВЫГОДНО</p>
-            </div>
         </aside>
 
         <main class="main-content">
             <div class="content-header">
                 <h2>User Profile</h2>
-                <div style="text-align: right;">
+                <div>
                     <span id="user-display" style="font-weight:bold; color:var(--accent-lime)">Loading...</span>
                 </div>
             </div>
@@ -51,7 +45,7 @@
 
             <div class="content-card">
                 <h3>Account Engines (0)</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">No engines registered yet.</p>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">No supernatural engines configured yet.</p>
             </div>
         </main>
     </div>
@@ -62,9 +56,7 @@
             if (user) {
                 db.ref('users/' + user.uid).once('value').then(snapshot => {
                     const data = snapshot.val();
-                    if(data) {
-                        document.getElementById('user-display').innerText = data.username;
-                    }
+                    if(data) document.getElementById('user-display').innerText = data.username;
                 });
             } else {
                 window.location.href = 'index.html';
