@@ -26,7 +26,6 @@
             margin: 0 auto;
         }
         
-        /* Верхняя панель: Профиль и Поиск */
         header {
             display: flex;
             justify-content: space-between;
@@ -88,7 +87,6 @@
             margin-bottom: 8px;
         }
 
-        /* Кнопка возврата к себе */
         .back-btn {
             display: none;
             background: none;
@@ -100,7 +98,6 @@
             margin-bottom: 15px;
         }
 
-        /* Меню табов */
         .tabs-menu-container {
             background: #111111;
             border-radius: 8px;
@@ -143,11 +140,7 @@
             cursor: pointer;
             padding: 0 5px;
         }
-        .add-tab-btn:hover {
-            color: var(--accent-yellow);
-        }
 
-        /* Главная рабочая область */
         .workspace-box {
             background: var(--bg-card);
             border-radius: 8px;
@@ -185,20 +178,14 @@
             font-weight: bold;
         }
 
-        /* Блоки содержимого */
-        .info-section {
-            margin-bottom: 20px;
-        }
+        .info-section { margin-bottom: 20px; }
         .section-top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-        }
+        .section-title { font-size: 1.1rem; font-weight: bold; }
         .manage-btn {
             background: #222;
             border: 1px solid var(--border-color);
@@ -217,7 +204,6 @@
             border: 1px dashed #333;
         }
 
-        /* Блок поиска пользователей */
         .found-user-row {
             display: flex;
             justify-content: space-between;
@@ -303,7 +289,7 @@ const firebaseConfig = { apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx_JXcTP4", authD
 if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); };
 const auth = firebase.auth(); const db = firebase.database(); let currentLoggedUid = null;
 
-// ИСПРАВЛЕНО: Даём Firebase время на проверку авторизации, убран моментальный ложный редирект
+// РЕДИРЕКТ ОТКЛЮЧЕН ДЛЯ ДИАГНОСТИКИ ОШИБОК
 auth.onAuthStateChanged(function(user) { 
     if (user) { 
         currentLoggedUid = user.uid; 
@@ -311,19 +297,16 @@ auth.onAuthStateChanged(function(user) {
             if (snapshot.exists()) { 
                 loadUserProfileData(user.uid, true); 
             } else { 
-                if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = "New User"; }; 
+                if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = "User Data Missing"; }; 
                 if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = "id: " + user.uid; }; 
             }; 
         }).catch(function(err) { 
             loadUserProfileData(user.uid, true); 
         }); 
     } else { 
-        // Если через 1.5 секунды сессия так и не подтвердилась — отправляем на авторизацию
-        setTimeout(function() {
-            if (!auth.currentUser) {
-                window.location.href = "index.html"; 
-            }
-        }, 1500);
+        // Вместо вылета просто пишем статус на экран
+        if(document.getElementById("profile-display-name")) { document.getElementById("profile-display-name").innerText = "Not Logged In"; };
+        if(document.getElementById("sub-name-label")) { document.getElementById("sub-name-label").innerText = "Please log in via index.html"; };
     }; 
 });
 
@@ -341,11 +324,4 @@ function returnToOwnProfile() { if (currentLoggedUid) { loadUserProfileData(curr
 
 function switchAccountTab(type, element) { const tabs = document.querySelectorAll("#account-tabs-container .tab-item"); tabs.forEach(function(t) { t.classList.remove("active"); }); element.classList.add("active"); };
 
-function switchPresetTab(type, element) { const tabs = document.querySelectorAll("#preset-tabs-container .tab-item"); tabs.forEach(function(t) { t.classList.remove("active"); }); element.classList.add("active"); const mainTitle = document.getElementById("workspace-dynamic-title"); const agentsLabel = document.getElementById("agents-block-label"); const enginesLabel = document.getElementById("engines-block-label"); if(!mainTitle) return; if (type === "roster") { mainTitle.textContent = "Account"; if(agentsLabel) { agentsLabel.textContent = "Account agents"; }; if(enginesLabel) { enginesLabel.textContent = "Account engines"; }; } else if (type === "preset1") { mainTitle.textContent = "Preset 1"; if(agentsLabel) { agentsLabel.textContent = "Preset agents"; }; if(enginesLabel) { enginesLabel.textContent = "Preset engines"; }; } else if (type === "preset2") { mainTitle.textContent = "Preset 2"; if(agentsLabel) { agentsLabel.textContent = "Preset agents"; }; if(enginesLabel) { enginesLabel.textContent = "Preset engines"; }; }; };
-
-function createNewAccountInTabs() { console.log("New account add click"); };
-function createNewPresetInTabs() { console.log("New preset add click"); };
-</script>
-
-</body>
-</html>
+function switchPresetTab(type, element) { const tabs = document.querySelectorAll("#preset-tabs-container .tab-item"); tabs.forEach(function(t) { t.classList.remove("active"); }); element.classList.add("active"); const mainTitle = document.getElementById("workspace-dynamic-title"); const agentsLabel = document.getElementById("agents-block-label"); const enginesLabel = document.getElementById("engines-block-label"); if(!mainTitle) return; if (type === "roster") { mainTitle.textContent = "Account"; if(agentsLabel) { agentsLabel.textContent = "Account agents"; }; if(enginesLabel) { enginesLabel.textContent = "Account engines"; }; } else if (type === "preset1") { mainTitle.textContent = "Preset 1"; if(agentsLabel) { agentsLabel.textContent = "Preset agents"; }; if(enginesLabel) { enginesLabel.textContent = "Preset engines"; }; } else if (type === "preset2") { mainTitle.textContent = "Preset 2"; if(agentsLabel) { agentsLabel.textContent = "Preset agents"; }; if(enginesLabel) { enginesLabel.textContent =
