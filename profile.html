@@ -208,7 +208,7 @@
             border: 1px dashed #333;
         }
 
-        .found-user-row {
+        .results-box-search {
             display: flex;
             justify-content: space-between;
             padding: 8px;
@@ -216,7 +216,7 @@
             font-size: 0.9rem;
             border-bottom: 1px solid var(--border-color);
         }
-        .found-user-row:hover { background: #1a1a1a; }
+        .results-box-search:hover { background: #1a1a1a; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -289,144 +289,8 @@
 </div>
 
 <script>
-// Твой актуальный конфиг Firebase (7b0e3)
+// Твой актуальный конфиг Realtime Database
 const firebaseConfig = { 
     apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx_JXcTP4", 
     authDomain: "nte-tournaments.firebaseapp.com", 
-    databaseURL: "https://nte-tournaments-7b0e3-default-rtdb.firebaseio.com", 
-    projectId: "nte-tournaments", 
-    storageBucket: "nte-tournaments.appspot.com", 
-    messagingSenderId: "1022034023092", 
-    appId: "1:1022034023092:web:d269068348b24abed93de1" 
-};
-
-// Инициализация Firebase с защитой от сбоев сети
-let auth = null;
-let db = null;
-let currentLoggedUid = null;
-
-try {
-    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); };
-    auth = firebase.auth(); 
-    db = firebase.database();
-
-    auth.onAuthStateChanged(function(user) { 
-        if (user) { 
-            currentLoggedUid = user.uid; 
-            db.ref("users/" + user.uid).once("value").then(function(snapshot) { 
-                if (snapshot.exists()) { 
-                    loadUserProfileData(user.uid, true); 
-                }
-            }).catch(function(e) { console.log("Firebase DB offline, working in local mode."); }); 
-        }
-    });
-} catch(e) {
-    console.log("Firebase initialization skipped or failed. Local tabs remain functional.");
-}
-
-function loadUserProfileData(uid, isItMe) { 
-    const backBtn = document.getElementById("back-self-btn");
-    if(backBtn) { backBtn.style.display = isItMe ? "none" : "inline-block"; }
-    if (!db) return;
-
-    db.ref("users/" + uid).once("value").then(function(snapshot) { 
-        const data = snapshot.val(); 
-        const pName = document.getElementById("profile-display-name");
-        const sLabel = document.getElementById("sub-name-label");
-        
-        if (data) { 
-            if(pName) pName.innerText = data.username || "unknown"; 
-            if(sLabel) sLabel.innerText = data.username || "unknown"; 
-            if (isItMe && data.username) { checkAdminStatus(data.username); }; 
-        }
-    }).catch(function(err) { console.error(err); }); 
-};
-
-function checkAdminStatus(username) { 
-    if (!db) return;
-    db.ref("admins/" + username).once("value").then(function(snapshot) { 
-        const isAdminButton = document.getElementById("admin-panel-btn"); 
-        if (snapshot.exists() && snapshot.val() === true) { 
-            if (isAdminButton) isAdminButton.style.display = "block"; 
-        } else { 
-            if (isAdminButton) isAdminButton.style.display = "none"; 
-        }; 
-    }).catch(function(err) { console.error(err); }); 
-};
-
-function toggleSearchDropdown() { const drop = document.getElementById("search-dropdown"); if(drop) { drop.style.display = drop.style.display === "block" ? "none" : "block"; }; };
-
-function searchUserInDB() { 
-    if (!db) return;
-    const query = document.getElementById("search-input").value.trim(); 
-    const resContainer = document.getElementById("search-results-container"); 
-    if (!query || !resContainer) return; 
-    db.ref("users").orderByChild("username").equalTo(query).once("value").then(function(snapshot) { 
-        resContainer.innerHTML = ""; 
-        if (!snapshot.exists()) { resContainer.innerText = "User not found"; return; }; 
-        snapshot.forEach(function(child) { 
-            const userKey = child.key; 
-            const userData = child.val(); 
-            resContainer.innerHTML += "<div class='found-user-row' onclick='viewTargetUser(\"" + userKey + "\")'><span>" + userData.username + "</span><span>Open &rarr;</span></div>"; 
-        }); 
-    }); 
-};
-
-function viewTargetUser(uid) { loadUserProfileData(uid, false); if(document.getElementById("search-dropdown")) { document.getElementById("search-dropdown").style.display = "none"; }; };
-function returnToOwnProfile() { if (currentLoggedUid) { loadUserProfileData(currentLoggedUid, true); }; };
-
-/* ФУНКЦИИ КЛИКОВ (Полностью защищены и работают сразу) */
-function switchAccountTab(type, element) { 
-    const tabs = document.querySelectorAll("#account-tabs-container .tab-item"); 
-    tabs.forEach(function(t) { t.classList.remove("active"); }); 
-    element.classList.add("active"); 
-    
-    const mainTitle = document.getElementById("workspace-dynamic-title");
-    if(mainTitle) { mainTitle.textContent = element.textContent; }
-};
-
-function switchPresetTab(type, element) { 
-    const tabs = document.querySelectorAll("#preset-tabs-container .tab-item"); 
-    tabs.forEach(function(t) { t.classList.remove("active"); }); 
-    element.classList.add("active"); 
-    
-    const mainTitle = document.getElementById("workspace-dynamic-title"); 
-    const agentsLabel = document.getElementById("agents-block-label"); 
-    const enginesLabel = document.getElementById("engines-block-label"); 
-    const actionBtn = document.getElementById("main-action-node-btn");
-    
-    const aBox = document.getElementById("agents-content-placeholder");
-    const eBox = document.getElementById("engines-content-placeholder");
-
-    if(!mainTitle) return; 
-    
-    if (type === "roster") { 
-        mainTitle.textContent = "Account"; 
-        if(agentsLabel) { agentsLabel.textContent = "Account agents"; }; 
-        if(enginesLabel) { enginesLabel.textContent = "Account engines"; }; 
-        if(actionBtn) { actionBtn.textContent = "Manage agents"; }
-        if(aBox) { aBox.textContent = "No active agents configured for this view."; }
-        if(eBox) { eBox.textContent = "No engines connected."; }
-    } else if (type === "preset1") { 
-        mainTitle.textContent = "Preset 1"; 
-        if(agentsLabel) { agentsLabel.textContent = "Preset agents"; }; 
-        if(enginesLabel) { enginesLabel.textContent = "Preset engines"; }; 
-        if(actionBtn) { actionBtn.textContent = "Manage preset"; }
-        if(aBox) { aBox.textContent = "Preset 1 agents are empty."; }
-        if(eBox) { eBox.textContent = "Preset 1 engines are offline."; }
-    } else if (type === "preset2") { 
-        mainTitle.textContent = "Preset 2"; 
-        if(agentsLabel) { agentsLabel.textContent = "Preset agents"; }; 
-        if(enginesLabel) { enginesLabel.textContent = "Preset engines"; }; 
-        if(actionBtn) { actionBtn.textContent = "Manage preset"; }
-        if(aBox) { aBox.textContent = "Preset 2 agents are empty."; }
-        if(eBox) { eBox.textContent = "Preset 2 engines are offline."; }
-    }; 
-};
-
-function createNewAccountInTabs() { console.log("Account creation click"); };
-function createNewPresetInTabs() { console.log("Preset creation click"); };
-</script>
-
-</body>
-</html>
+    databaseURL:
