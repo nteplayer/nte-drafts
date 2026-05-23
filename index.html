@@ -2,44 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHIYU OUP PANEL - AUTH</title>
+    <title>SHIYU OUP - LOGIN</title>
     <style>
-        :root { --bg-main: #0a0a0a; --bg-card: #111111; --text-main: #ffffff; --accent-yellow: #e5fe02; }
-        body { background-color: var(--bg-main); color: var(--text-main); font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        .auth-card { background-color: var(--bg-card); padding: 40px; border-radius: 16px; width: 100%; max-width: 400px; border: 1px solid #222; }
-        .form-group { margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; margin-top: 5px; }
-        button { width: 100%; padding: 12px; background: var(--accent-yellow); border: none; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        body { background: #0a0a0a; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .auth-card { background: #111; padding: 40px; border-radius: 16px; width: 350px; border: 1px solid #222; }
+        input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: #fff; margin: 10px 0; border-radius: 8px; }
+        button { width: 100%; padding: 12px; background: #e5fe02; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; }
     </style>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
-
 <div class="auth-card">
-    <h2 id="auth-title">Sign In</h2>
-    <form id="auth-form" onsubmit="handleAuthSubmit(event)">
-        <div class="form-group" id="username-group" style="display: none;">
-            <label>Username</label>
-            <input type="text" id="reg-username">
-        </div>
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="auth-email" required>
-        </div>
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="auth-password" required>
-        </div>
-        <button type="submit" id="submit-button">Login</button>
-    </form>
-    <p style="text-align: center; margin-top: 20px; cursor: pointer;" onclick="toggleMode()">
-        <span id="switch-text">Don't have an account? <b>Sign Up</b></span>
-    </p>
+    <h2 id="title">Sign In</h2>
+    <input type="text" id="username" placeholder="Username" style="display:none;">
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="pass" placeholder="Password">
+    <button id="btn" onclick="auth()">Login</button>
+    <p onclick="toggle()" style="cursor:pointer; text-align:center;">Switch Mode</p>
 </div>
-
 <script>
 const firebaseConfig = { 
     apiKey: "AIzaSyAa_zvBCLyFZKcclMtUfRs_2Tx__JXcTP4", 
@@ -50,36 +32,20 @@ const firebaseConfig = {
     messagingSenderId: "1022034023092", 
     appId: "1:1022034023092:web:d269068348b24abed93de1" 
 };
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-
-let isSignUp = false;
-
-function toggleMode() {
-    isSignUp = !isSignUp;
-    document.getElementById("auth-title").innerText = isSignUp ? "Sign Up" : "Sign In";
-    document.getElementById("username-group").style.display = isSignUp ? "block" : "none";
-    document.getElementById("submit-button").innerText = isSignUp ? "Register" : "Login";
-    document.getElementById("switch-text").innerHTML = isSignUp ? "Already have an account? <b>Sign In</b>" : "Don't have an account? <b>Sign Up</b>";
-}
-
-function handleAuthSubmit(e) {
-    e.preventDefault();
-    const email = document.getElementById("auth-email").value;
-    const pass = document.getElementById("auth-password").value;
-    
-    if (isSignUp) {
-        auth.createUserWithEmailAndPassword(email, pass)
-            .then((res) => {
-                db.ref("users/" + res.user.uid).set({ username: document.getElementById("reg-username").value })
-                  .then(() => window.location.replace("profile.html"));
-            })
-            .catch(err => alert(err.message));
+firebase.initializeApp(firebaseConfig);
+let isUp = false;
+function toggle() { isUp = !isUp; document.getElementById("username").style.display = isUp ? "block" : "none"; document.getElementById("title").innerText = isUp ? "Sign Up" : "Sign In"; }
+function auth() {
+    const e = document.getElementById("email").value, p = document.getElementById("pass").value;
+    if(isUp) {
+        firebase.auth().createUserWithEmailAndPassword(e, p).then(res => {
+            firebase.database().ref("users/" + res.user.uid).set({
+                username: document.getElementById("username").value,
+                accounts: { "acc1": { name: "Account 1", agents: 0, engines: 0 } }
+            }).then(() => window.location.href = "profile.html");
+        });
     } else {
-        auth.signInWithEmailAndPassword(email, pass)
-            .then(() => window.location.replace("profile.html"))
-            .catch(err => alert(err.message));
+        firebase.auth().signInWithEmailAndPassword(e, p).then(() => window.location.href = "profile.html");
     }
 }
 </script>
