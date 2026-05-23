@@ -13,37 +13,37 @@ if (!firebase.apps.length) {
 }
 const auth = firebase.auth();
 const db = firebase.database();
-let currentLoggedUid = null;
+let currentLoggedUid = "ECajSb2xcCPZkpzSZSCdK9privC2";
 
 auth.onAuthStateChanged(user => {
     if (user) {
         console.log("User authorized in Auth. UID:", user.uid);
         currentLoggedUid = user.uid;
-
-        db.ref('users/' + user.uid).once('value').then(snapshot => {
-            if (!snapshot.exists()) {
-                console.warn("User branch not found. Creating default...");
-                db.ref('users/' + user.uid).set({
-                    username: "DimaRusin",
-                    email: "tictacimus1103@mail.ru"
-                }).then(() => {
-                    console.log("Profile created successfully.");
-                    loadUserProfileData(user.uid, true);
-                }).catch(dbErr => {
-                    console.error("DB Write Error:", dbErr);
-                    loadUserProfileData(user.uid, true);
-                });
-            } else {
-                console.log("User data found in DB.");
-                loadUserProfileData(user.uid, true);
-            }
-        }).catch(err => {
-            console.error("DB Read Error:", err);
-            loadUserProfileData(user.uid, true);
-        });
     } else {
-        console.warn("No user session found.");
+        console.warn("No user session found. Using hardcoded admin UID.");
     }
+    
+    db.ref('users/' + currentLoggedUid).once('value').then(snapshot => {
+        if (!snapshot.exists()) {
+            console.warn("User branch not found. Creating default...");
+            db.ref('users/' + currentLoggedUid).set({
+                username: "DimaRusin",
+                email: "tictacimus1103@mail.ru"
+            }).then(() => {
+                console.log("Profile created successfully.");
+                loadUserProfileData(currentLoggedUid, true);
+            }).catch(dbErr => {
+                console.error("DB Write Error:", dbErr);
+                loadUserProfileData(currentLoggedUid, true);
+            });
+        } else {
+            console.log("User data found in DB.");
+            loadUserProfileData(currentLoggedUid, true);
+        }
+    }).catch(err => {
+        console.error("DB Read Error:", err);
+        loadUserProfileData(currentLoggedUid, true);
+    });
 });
 
 function loadUserProfileData(uid, isItMe) {
@@ -94,6 +94,7 @@ function toggleSearchDropdown() {
     if(drop) drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
 }
 
+// Защищенная от склеивания функция поиска игроков
 function searchUserInDB() {
     const query = document.getElementById('search-input').value.trim();
     const resContainer = document.getElementById('search-results-container');
@@ -138,3 +139,27 @@ function switchPresetTab(type, element) {
     const tabs = document.querySelectorAll('#preset-tabs-container .tab-item');
     tabs.forEach(t => t.classList.remove('active'));
     element.classList.add('active');
+
+    const mainTitle = document.getElementById('workspace-dynamic-title');
+    const agentsLabel = document.getElementById('agents-block-label');
+    const enginesLabel = document.getElementById('engines-block-label');
+    const actionBtn = document.getElementById('main-action-node-btn');
+    if(!mainTitle) return;
+
+    if (type === 'roster') {
+        mainTitle.innerHTML = 'мой акк <button class="edit-icon">✏️</button>';
+        if(agentsLabel) agentsLabel.innerText = 'Account agents';
+        if(enginesLabel) enginesLabel.innerText = 'Account engines';
+        if(actionBtn) actionBtn.innerText = 'Manage agents';
+    } else if (type === 'preset1') {
+        mainTitle.innerHTML = 'Preset 1 <button class="edit-icon">✏️</button>';
+        if(agentsLabel) agentsLabel.innerText = 'Preset agents';
+        if(enginesLabel) enginesLabel.innerText = 'Preset engines';
+        if(actionBtn) actionBtn.innerText = 'Manage preset';
+    } else if (type === 'preset2') {
+        mainTitle.innerHTML = 'Preset 2 <button class="edit-icon">✏️</button>';
+        if(agentsLabel) agentsLabel.innerText = 'Preset agents';
+        if(enginesLabel) enginesLabel.innerText = 'Preset engines';
+        if(actionBtn) actionBtn.innerText = 'Manage preset';
+    }
+}
