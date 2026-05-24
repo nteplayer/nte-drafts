@@ -337,304 +337,331 @@
 
   <script type="module">
 
-    import {
+import {
+  auth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged
+} from './firebase.js'
+
+/* =========================
+   AUTH
+========================= */
+
+const authModal = document.getElementById('authModal')
+
+const emailInput = document.getElementById('email')
+
+const passwordInput = document.getElementById('password')
+
+const authStatus = document.getElementById('authStatus')
+
+const loginBtn = document.getElementById('loginBtn')
+
+const registerBtn = document.getElementById('registerBtn')
+
+/* REGISTER */
+
+registerBtn.addEventListener('click', async () => {
+
+  const email = emailInput.value.trim()
+
+  const password = passwordInput.value.trim()
+
+  if (!email || !password) {
+
+    authStatus.innerHTML = 'Enter email and password'
+
+    return
+
+  }
+
+  try {
+
+    await createUserWithEmailAndPassword(
       auth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      onAuthStateChanged
-    } from './firebase.js'
+      email,
+      password
+    )
 
-    /* AUTH */
+    authStatus.innerHTML = 'Account created'
 
-    const authModal = document.getElementById('authModal')
+  } catch(error) {
 
-    const emailInput = document.getElementById('email')
+    authStatus.innerHTML = error.message
 
-    const passwordInput = document.getElementById('password')
+  }
 
-    const authStatus = document.getElementById('authStatus')
+})
 
-    const loginBtn = document.getElementById('loginBtn')
+/* LOGIN */
 
-    const registerBtn = document.getElementById('registerBtn')
+loginBtn.addEventListener('click', async () => {
 
-    /* REGISTER */
+  const email = emailInput.value.trim()
 
-    registerBtn.onclick = async () => {
+  const password = passwordInput.value.trim()
 
-      const email = emailInput.value
+  if (!email || !password) {
 
-      const password = passwordInput.value
+    authStatus.innerHTML = 'Enter email and password'
 
-      try {
+    return
 
-        await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        )
+  }
 
-        authStatus.innerHTML = 'Account created'
+  try {
 
-      } catch(err) {
+    await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    )
 
-        authStatus.innerHTML = err.message
+    authStatus.innerHTML = 'Success login'
 
-      }
+  } catch(error) {
 
-    }
+    authStatus.innerHTML = error.message
 
-    /* LOGIN */
+  }
 
-    loginBtn.onclick = async () => {
+})
 
-      const email = emailInput.value
+/* AUTH STATE */
 
-      const password = passwordInput.value
+onAuthStateChanged(auth, (user) => {
 
-      try {
+  if(user) {
 
-        await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        )
+    authModal.style.display = 'none'
 
-        authStatus.innerHTML = 'Success login'
+    console.log('USER LOGGED')
 
-      } catch(err) {
+  } else {
 
-        authStatus.innerHTML = err.message
+    authModal.style.display = 'flex'
 
-      }
+  }
 
-    }
+})
 
-    /* AUTH STATE */
+/* =========================
+   DRAFT MODAL
+========================= */
 
-    onAuthStateChanged(auth, (user) => {
+window.openDraftModal = function() {
 
-      if(user) {
+  const modal = document.getElementById('draftModal')
 
-        authModal.style.display = 'none'
+  modal.classList.remove('hidden')
 
-      } else {
+  modal.classList.add('flex')
 
-        authModal.style.display = 'flex'
+}
 
-      }
+window.closeDraftModal = function() {
 
-    })
+  const modal = document.getElementById('draftModal')
 
-    /* DRAFT MODAL */
+  modal.classList.add('hidden')
 
-    window.openDraftModal = function() {
+  modal.classList.remove('flex')
 
-      document.getElementById('draftModal')
-        .classList.remove('hidden')
+}
 
-      document.getElementById('draftModal')
-        .classList.add('flex')
+/* =========================
+   PAGES
+========================= */
 
-    }
+const main = document.querySelector('main')
 
-    window.closeDraftModal = function() {
+const pages = {
 
-      document.getElementById('draftModal')
-        .classList.add('hidden')
+  home: `
+    <div class="card p-10">
 
-      document.getElementById('draftModal')
-        .classList.remove('flex')
+      <h1 class="text-6xl font-black mb-5">
+        Home
+      </h1>
 
-    }
+      <div class="text-zinc-500 text-xl">
+        Welcome to Draft Platform
+      </div>
 
-    /* PAGES */
+    </div>
+  `,
 
-    const main = document.querySelector('main')
+  profile: `
+    <div class="card p-10">
 
-    const pages = {
+      <h1 class="text-6xl font-black mb-8">
+        Profile
+      </h1>
 
-      home: `
-        <div class="card p-10">
+      <div class="flex gap-4 mb-8">
 
-          <h1 class="text-6xl font-black mb-5">
-            Home
-          </h1>
+        <button class="rounded-full bg-lime-300 text-black px-5 py-3 font-black">
+          Main Account
+        </button>
 
-          <div class="text-zinc-500 text-xl">
-            Welcome to Draft Platform
-          </div>
+        <button class="rounded-full border border-zinc-700 px-5 py-3">
+          Tournament
+        </button>
 
-        </div>
-      `,
+        <button class="rounded-full border border-zinc-700 px-5 py-3">
+          +
+        </button>
 
-      profile: `
-        <div class="card p-10">
+      </div>
 
-          <h1 class="text-6xl font-black mb-8">
-            Profile
-          </h1>
+      <div class="grid grid-cols-6 gap-4">
 
-          <div class="flex gap-4 mb-8">
+        <div class="h-[120px] rounded-3xl bg-zinc-900 border border-zinc-800"></div>
+        <div class="h-[120px] rounded-3xl bg-zinc-900 border border-zinc-800"></div>
+        <div class="h-[120px] rounded-3xl bg-zinc-900 border border-zinc-800"></div>
+        <div class="h-[120px] rounded-3xl bg-zinc-900 border border-zinc-800"></div>
+        <div class="h-[120px] rounded-3xl bg-zinc-900 border border-zinc-800"></div>
+        <div class="h-[120px] rounded-3xl bg-zinc-900 border border-zinc-800"></div>
 
-            <button class="rounded-full bg-lime-300 text-black px-5 py-3 font-black">
-              Main Account
-            </button>
+      </div>
 
-            <button class="rounded-full border border-zinc-700 px-5 py-3">
-              Tournament
-            </button>
+    </div>
+  `,
 
-            <button class="rounded-full border border-zinc-700 px-5 py-3">
-              +
-            </button>
+  drafts: `
+    <div class="card p-10">
 
-          </div>
+      <div class="flex items-center justify-between mb-8">
 
-          <div class="grid grid-cols-6 gap-4">
+        <h1 class="text-6xl font-black">
+          Drafts
+        </h1>
 
-            <div class="h-[120px] rounded-3xl bg-zinc-900 border border-zinc-800"></div>
-            <div class="h-[120px] rounded-3xl bg-zinc-900 border border-zinc-800"></div>
-            <div class="h-[120px] rounded-3xl bg-zinc-900 border border-zinc-800"></div>
-            <div class="h-[120px] rounded-3xl bg-zinc-900 border border-zinc-800"></div>
-            <div class="h-[120px] rounded-3xl bg-zinc-900 border border-zinc-800"></div>
-            <div class="h-[120px] rounded-3xl bg-zinc-900 border border-zinc-800"></div>
+        <button
+          onclick="openDraftModal()"
+          class="rounded-full bg-lime-300 text-black px-6 py-3 font-black"
+        >
+          Create Draft
+        </button>
 
-          </div>
+      </div>
 
-        </div>
-      `,
+      <div class="text-zinc-500 text-xl">
+        Drafts not found
+      </div>
 
-      drafts: `
-        <div class="card p-10">
+    </div>
+  `,
 
-          <div class="flex items-center justify-between mb-8">
+  tournaments: `
+    <div class="card p-10">
 
-            <h1 class="text-6xl font-black">
-              Drafts
-            </h1>
+      <h1 class="text-6xl font-black mb-8">
+        Tournaments
+      </h1>
 
-            <button
-              onclick="openDraftModal()"
-              class="rounded-full bg-lime-300 text-black px-6 py-3 font-black"
-            >
-              Create Draft
-            </button>
+      <div class="text-zinc-500 text-xl">
+        Tournament list
+      </div>
 
-          </div>
+    </div>
+  `,
 
-          <div class="text-zinc-500 text-xl">
-            Drafts not found
-          </div>
+  systems: `
+    <div class="card p-10">
 
-        </div>
-      `,
+      <div class="flex items-center justify-between mb-8">
 
-      tournaments: `
-        <div class="card p-10">
+        <h1 class="text-6xl font-black">
+          Draft Systems
+        </h1>
 
-          <h1 class="text-6xl font-black mb-8">
-            Tournaments
-          </h1>
+        <button class="rounded-full bg-lime-300 text-black px-6 py-3 font-black">
+          Create Draft System
+        </button>
 
-          <div class="text-zinc-500 text-xl">
-            Tournament list
-          </div>
+      </div>
 
-        </div>
-      `,
+      <div class="text-zinc-500 text-xl">
+        Systems list
+      </div>
 
-      systems: `
-        <div class="card p-10">
+    </div>
+  `,
 
-          <div class="flex items-center justify-between mb-8">
+  news: `
+    <div class="card p-10">
 
-            <h1 class="text-6xl font-black">
-              Draft Systems
-            </h1>
+      <h1 class="text-6xl font-black mb-8">
+        News
+      </h1>
 
-            <button class="rounded-full bg-lime-300 text-black px-6 py-3 font-black">
-              Create Draft System
-            </button>
+      <div class="text-zinc-500 text-xl">
+        No news yet
+      </div>
 
-          </div>
+    </div>
+  `
 
-          <div class="text-zinc-500 text-xl">
-            Systems list
-          </div>
+}
 
-        </div>
-      `,
+/* =========================
+   PAGE SWITCH
+========================= */
 
-      news: `
-        <div class="card p-10">
+function setPage(page) {
 
-          <h1 class="text-6xl font-black mb-8">
-            News
-          </h1>
+  main.innerHTML = pages[page]
 
-          <div class="text-zinc-500 text-xl">
-            No news yet
-          </div>
+  document.querySelectorAll('.sidebar-btn').forEach(btn => {
 
-        </div>
-      `
+    btn.classList.remove(
+      'bg-lime-300',
+      'text-black'
+    )
 
-    }
+    btn.classList.add(
+      'bg-zinc-950',
+      'text-white'
+    )
 
-    /* PAGE SWITCH */
+  })
 
-    function setPage(page) {
+  const activeBtn = document.querySelector(
+    `[data-page="${page}"]`
+  )
 
-      main.innerHTML = pages[page]
+  if(activeBtn) {
 
-      document.querySelectorAll('.sidebar-btn').forEach(btn => {
+    activeBtn.classList.remove(
+      'bg-zinc-950',
+      'text-white'
+    )
 
-        btn.classList.remove(
-          'bg-lime-300',
-          'text-black'
-        )
+    activeBtn.classList.add(
+      'bg-lime-300',
+      'text-black'
+    )
 
-        btn.classList.add(
-          'bg-zinc-950',
-          'text-white'
-        )
+  }
 
-      })
+}
 
-      const activeBtn = document.querySelector(
-        `[data-page="${page}"]`
-      )
+/* =========================
+   SIDEBAR BUTTONS
+========================= */
 
-      if(activeBtn) {
+document.querySelectorAll('.sidebar-btn').forEach(btn => {
 
-        activeBtn.classList.remove(
-          'bg-zinc-950',
-          'text-white'
-        )
+  btn.addEventListener('click', () => {
 
-        activeBtn.classList.add(
-          'bg-lime-300',
-          'text-black'
-        )
+    setPage(btn.dataset.page)
 
-      }
+  })
 
-    }
+})
 
-    /* BUTTONS */
-
-    document.querySelectorAll('.sidebar-btn').forEach(btn => {
-
-      btn.addEventListener('click', () => {
-
-        setPage(btn.dataset.page)
-
-      })
-
-    })
-
-  </script>
-
+</script>
 </body>
 </html>
